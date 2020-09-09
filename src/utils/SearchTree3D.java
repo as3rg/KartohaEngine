@@ -56,6 +56,33 @@ public class SearchTree3D {
         }
     }
 
+    public void remove(Object3D o){
+        if (o.getHighPoint().x < low.x
+                || o.getHighPoint().y < low.y
+                || o.getHighPoint().z < low.z
+                || o.getLowPoint().x > high.x
+                || o.getLowPoint().y > high.y
+                || o.getLowPoint().z > high.z){
+            return;
+        }
+        count--;
+
+        if(isLeaf){
+            objects.remove(o);
+        }else if (count == 0){
+            deinit();
+        }else {
+            lll.remove(o);
+            llh.remove(o);
+            lhl.remove(o);
+            lhh.remove(o);
+            hll.remove(o);
+            hlh.remove(o);
+            hhl.remove(o);
+            hhh.remove(o);
+        }
+    }
+
     public int getCount() {
         return count;
     }
@@ -105,5 +132,19 @@ public class SearchTree3D {
         hlh = new SearchTree3D(new Point(high.x, low.y, high.z), center);
         hhl = new SearchTree3D(new Point(high.x, high.y, low.z), center);
         isInited = true;
+    }
+
+    private void deinit(){
+        if (!isInited)
+            return;
+        lll = null;
+        hhh = null;
+        llh = null;
+        lhl = null;
+        lhh = null;
+        hll = null;
+        hlh = null;
+        hhl = null;
+        isInited = false;
     }
 }
