@@ -1,6 +1,6 @@
 package utils;
 
 public interface Object3D {
-    Point getLowPoint();
-    Point getHighPoint();
+    Point3D getLowPoint();
+    Point3D getHighPoint();
 }

@@ -10,9 +10,9 @@ import static java.lang.Math.min;
 
 public class SearchTree3D {
 
-    SearchTree3D(Point a, Point b){
-        low = new Point(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z));
-        high = new Point(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z));
+    SearchTree3D(Point3D a, Point3D b){
+        low = new Point3D(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z));
+        high = new Point3D(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z));
 
         if((high.x-low.x)*(high.y-low.y)*(high.z-low.z) <= 0.25){
             isLeaf = true;
@@ -23,7 +23,7 @@ public class SearchTree3D {
         }
     }
 
-    private final Point low, high;
+    private final Point3D low, high;
     private int count = 0;
     private final boolean isLeaf;
     private boolean isInited;
@@ -122,15 +122,15 @@ public class SearchTree3D {
     private void init(){
         if (isInited)
             return;
-        Point center = new Point((low.x + high.x) / 2.0, (low.y + high.y) / 2.0, (low.z + high.z) / 2.0);
+        Point3D center = new Point3D((low.x + high.x) / 2.0, (low.y + high.y) / 2.0, (low.z + high.z) / 2.0);
         lll = new SearchTree3D(low, center);
         hhh = new SearchTree3D(center, high);
-        llh = new SearchTree3D(new Point(low.x, low.y, high.z), center);
-        lhl = new SearchTree3D(new Point(low.x, high.y, low.z), center);
-        lhh = new SearchTree3D(new Point(low.x, high.y, high.z), center);
-        hll = new SearchTree3D(new Point(high.x, low.y, low.z), center);
-        hlh = new SearchTree3D(new Point(high.x, low.y, high.z), center);
-        hhl = new SearchTree3D(new Point(high.x, high.y, low.z), center);
+        llh = new SearchTree3D(new Point3D(low.x, low.y, high.z), center);
+        lhl = new SearchTree3D(new Point3D(low.x, high.y, low.z), center);
+        lhh = new SearchTree3D(new Point3D(low.x, high.y, high.z), center);
+        hll = new SearchTree3D(new Point3D(high.x, low.y, low.z), center);
+        hlh = new SearchTree3D(new Point3D(high.x, low.y, high.z), center);
+        hhl = new SearchTree3D(new Point3D(high.x, high.y, low.z), center);
         isInited = true;
     }
 
