@@ -1,7 +1,7 @@
 package com.guryanov_sergeev;
 
 import graph.Camera;
-import graph.MyCanvas;
+import graph.PaintersAlgorithmCanvas;
 import utils.Point3D;
 import utils.Polygon3D;
 import utils.Vector3D;
@@ -11,27 +11,22 @@ import java.awt.*;
 
 public class Main {
 
+    public static final int FocusLength = 200;
+    public static final int Distance = 400;
     public static void main(String[] args) {
-        JFrame frame = new JFrame();
-
-        frame.setSize(1280, 720);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(false);
-        frame.setVisible(true);
         Camera.Resolution resolution = new Camera.Resolution(1280, 720);
-        Camera camera = new Camera(resolution, new Point3D(-400,0, 0), new Vector3D(200, 0, 0), 0);
+        Camera camera = new Camera(resolution, new Point3D(Distance,0, 0), new Vector3D(-FocusLength, 0, 0), 0);
 
-        MyCanvas canvas = new MyCanvas(camera);
+        PaintersAlgorithmCanvas canvas = new PaintersAlgorithmCanvas(camera);
 
-        Point3D A = new Point3D(0, 0, 100),
-                B = new Point3D(0, 0, -100),
-                C = new Point3D(0, 200, 100),
-                D = new Point3D(0, 200, -100),
-                A2 = new Point3D(200, 0, 100),
-                B2 = new Point3D(200, 0, -100),
-                C2 = new Point3D(200, 200, 100),
-                D2 = new Point3D(200, 200, -100);
+        Point3D A = new Point3D(-50, -50, -100),
+                B = new Point3D(-50, -50, -200),
+                C = new Point3D(-50, 50, -100),
+                D = new Point3D(-50, 50, -200),
+                A2 = new Point3D(50, -50, -100),
+                B2 = new Point3D(50, -50, -200),
+                C2 = new Point3D(50, 50, -100),
+                D2 = new Point3D(50, 50, -200);
 
         canvas.getPolygons().add(new Polygon3D(A, B, C, Color.RED));
         canvas.getPolygons().add(new Polygon3D(A, D, C, Color.RED));
@@ -52,15 +47,25 @@ public class Main {
         canvas.getPolygons().add(new Polygon3D(A2, B2, C2, Color.LIGHT_GRAY));
         canvas.getPolygons().add(new Polygon3D(A2, D2, C2, Color.LIGHT_GRAY));
 
-        frame.add(canvas);
+        JFrame frame = new JFrame();
+
+        frame.getContentPane().add(canvas, BorderLayout.CENTER);
+        frame.setSize(1280, 720);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+        frame.setUndecorated(true);
+        frame.setVisible(true);
+
+
         new Thread(()-> {
-            for (int i = 0; ; i++) {
-                camera.setFocus(new Point3D(-400 * Math.cos(i * Math.PI / 180), -400 * Math.sin(i * Math.PI / 180), 0));
-                camera.setVector(new Vector3D(200 * Math.cos(i * Math.PI / 180), 200 * Math.sin(i * Math.PI / 180), 0));
-                camera.setRotateAngle(Math.PI * i / 180);
+            for (int i = 0; ;i++ ) {
+                camera.setFocus(new Point3D(-Distance * utils.Math.destroyMinusZeros(Math.cos(2*i * Math.PI / 180)), -Distance * utils.Math.destroyMinusZeros(Math.sin(2*i * Math.PI / 180)), 0));
+                camera.setVector(new Vector3D(FocusLength * utils.Math.destroyMinusZeros(Math.cos(2*i * Math.PI / 180)), FocusLength * utils.Math.destroyMinusZeros(Math.sin(2*i * Math.PI / 180)), 0));
+//                camera.setRotateAngle(Math.PI * i / 180);
                 canvas.repaint();
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(5);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

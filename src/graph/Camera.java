@@ -3,6 +3,8 @@ package graph;
 import javafx.util.Pair;
 import utils.*;
 
+import java.lang.Math;
+
 public class Camera {
     public Resolution getResolution() {
         return res;
@@ -72,7 +74,7 @@ public class Camera {
             double alphaW = -res.width/2 * vector.y / Math.sqrt(vector.x*vector.x+vector.y*vector.y);
             bW = new Vector3D(-alphaW, vector.x/vector.y * alphaW, 0);
         }else{
-            bW = new Vector3D(0, Math.signum(vector.x)*res.width/2, 0);
+            bW = new Vector3D(0, -Math.signum(vector.x)*res.width/2, 0);
         }
 
         if (vector.x != 0 && vector.z != 0) {
@@ -146,9 +148,9 @@ public class Camera {
             }
         }
         assert roH != null && roW != null;
-        double cos = Math.cos(rotate),
-                sin = Math.sin(rotate);
-        return new Point2D(roW*res.width*cos-roH*res.height*sin + res.width/2, roW*res.width*sin+roH*res.height*cos + res.height/2);
+        double cos = utils.Math.destroyMinusZeros(Math.cos(rotate)),
+                sin = utils.Math.destroyMinusZeros(Math.sin(rotate));
+        return new Point2D(roW*res.width*cos-roH*res.height*sin + res.width/2, -roW*res.width*sin-roH*res.height*cos + res.height/2);
     }
 
     public Polygon2D project(Polygon3D poly){

@@ -1,30 +1,26 @@
 package graph;
 
-import utils.Point3D;
 import utils.Polygon2D;
 import utils.Polygon3D;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MyCanvas extends Canvas {
-    public MyCanvas(Camera camera){
+public class PaintersAlgorithmCanvas extends JPanel {
+    public PaintersAlgorithmCanvas(Camera camera){
         this.camera = camera;
-        setSize((int)camera.getResolution().width, (int)camera.getResolution().height);
-        setBackground(Color.BLACK);
-        setVisible(true);
-        setFocusable(false);
+        setDoubleBuffered(false);
     }
 
     private final Set<Polygon3D> polygons = new HashSet<>();
     private final Camera camera;
 
     @Override
-    public void paint(Graphics g2) {
-        super.paint(g2);
-
+    protected void paintComponent(Graphics g2) {
+        super.paintComponent(g2);
         BufferedImage bufferedImage = new BufferedImage( (int)camera.getResolution().width, (int)camera.getResolution().height, BufferedImage.TYPE_INT_ARGB );
         Graphics2D g = bufferedImage.createGraphics ();
         g.clearRect(0, 0, (int) camera.getResolution().width, (int) camera.getResolution().height);
