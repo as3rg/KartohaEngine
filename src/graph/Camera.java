@@ -24,6 +24,14 @@ public class Camera {
         }
     }
 
+    public double getRotateAngle() {
+        return rotate;
+    }
+
+    public void setRotateAngle(double rotate) {
+        this.rotate = rotate;
+    }
+
     public Point3D getFocus() {
         return focus;
     }
@@ -34,10 +42,10 @@ public class Camera {
         }
     }
 
-    static class Resolution{
-        final double height,width;
+    public static class Resolution{
+        public final double height,width;
 
-        Resolution(double height, double width) {
+        public Resolution(double width, double height) {
             this.height = height;
             this.width = width;
         }
@@ -47,14 +55,15 @@ public class Camera {
     private Point3D focus;
     private Vector3D vector;
     private Resolution res;
-    private Double rotate;
+    private double rotate;
 
-    public Camera(Resolution resolution, Point3D focus, Vector3D vector) {
+    public Camera(Resolution resolution, Point3D focus, Vector3D vector, double rotate) {
         if(vector.x == 0 && vector.y == 0)
             throw new UndefinedVectorOfView();
         this.focus = focus;
         this.vector = vector;
         this.res = resolution;
+        this.rotate = rotate;
     }
 
     private Pair<Vector3D, Vector3D> getBasises(){
@@ -79,11 +88,7 @@ public class Camera {
             bH = new Vector3D(0,0,res.height/2);
         }
 
-        double cos = Math.cos(rotate),
-                sin = Math.sin(rotate);
-        Vector3D bH2 = new Vector3D(bW.x*sin+bH.x*cos,bW.y*sin+bH.y*cos,bW.z*sin+bH.z*cos),
-                bW2 = new Vector3D(bW.x*cos+bH.x*sin,bW.y*cos+bH.y*sin,bW.z*cos+bH.z*sin);
-        return new Pair<>(bW2, bH2);
+        return new Pair<>(bW, bH);
     }
 
     public Point2D project(Point3D point3D){
@@ -93,16 +98,60 @@ public class Camera {
         Pair<Vector3D, Vector3D> basises = getBasises();
         Vector3D bW = basises.getKey(),
                 bH = basises.getValue();
-        double roW;
-        if(bH.y != 0)
-            roW = (bH.z*(projection.y-smm.y)-bH.y*(projection.z-smm.z))/(bH.y*bW.y - bH.z*bW.z);
-        else
-            roW = (bH.z*(projection.x-smm.x)-bH.x*(projection.z-smm.z))/(bH.x*bW.x - bH.z*bW.z);
-        double roH = (bH.z-smm.z-bW.z*roW)/bH.z;
-        return new Point2D(roW*res.width, roH*res.height);
+        Double roW = null, roH = null;
+        if(bH.y != 0 && bH.z != 0 && bW.y != 0 && bW.z != 0) {
+            roW = (bH.z * (projection.y - smm.y) - bH.y * (projection.z - smm.z)) / (bH.y * bW.y - bH.z * bW.z);
+            roH = (projection.z-smm.z-bW.z*roW)/bH.z;
+        }else if(bH.x != 0 && bH.z != 0 && bW.x != 0 && bW.z != 0) {
+            roW = (bH.z * (projection.x - smm.x) - bH.x * (projection.z - smm.z)) / (bH.x * bW.x - bH.z * bW.z);
+            roH = (projection.x - smm.x - bW.x * roW) / bH.x;
+        }else if(bH.x != 0 && bH.y != 0 && bW.x != 0 && bW.y != 0) {
+            roW = (bH.y * (projection.x - smm.x) - bH.x * (projection.y - smm.y)) / (bH.x * bW.x - bH.y * bW.y);
+            roH = (projection.x - smm.x - bW.x * roW) / bH.x;
+        }else {
+            if(bH.x == 0 && bW.x != 0){
+                roW = (projection.x-smm.x)/bW.x;
+            }else if(bH.y == 0 && bW.y != 0){
+                roW = (projection.y-smm.y)/bW.y;
+            }else if(bH.z == 0 && bW.z != 0){
+                roW = (projection.z-smm.z)/bW.z;
+            }
+
+            if(bH.x != 0 && bW.x == 0){
+                roH = (projection.x-smm.x)/bH.x;
+            }else if(bH.y != 0 && bW.y == 0){
+                roH = (projection.y-smm.y)/bH.y;
+            }else if(bH.z != 0 && bW.z == 0){
+                roH = (projection.z-smm.z)/bH.z;
+            }
+
+            if(roW == null && roH != null){
+                if(bW.x != 0){
+                    roW = (projection.x-smm.x-bH.x*roH)/bW.x;
+                }else if(bW.y != 0){
+                    roW = (projection.y-smm.y-bH.y*roH)/bW.y;
+                }else if(bW.z != 0){
+                    roW = (projection.z-smm.z-bH.z*roH)/bW.z;
+                }
+            }
+
+            if(roH == null && roW != null){
+                if(bH.x != 0){
+                    roH = (projection.x-smm.x-bW.x*roW)/bH.x;
+                }else if(bH.y != 0){
+                    roH = (projection.y-smm.y-bW.y*roW)/bH.y;
+                }else if(bH.z != 0){
+                    roH = (projection.z-smm.z-bW.z*roW)/bH.z;
+                }
+            }
+        }
+        assert roH != null && roW != null;
+        double cos = Math.cos(rotate),
+                sin = Math.sin(rotate);
+        return new Point2D(roW*res.width*cos-roH*res.height*sin + res.width/2, roW*res.width*sin+roH*res.height*cos + res.height/2);
     }
 
     public Polygon2D project(Polygon3D poly){
-        return new Polygon2D(project(poly.A), project(poly.B), project(poly.C));
+        return new Polygon2D(project(poly.a1), project(poly.a2), project(poly.a3), poly.color);
     }
 }
