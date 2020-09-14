@@ -78,8 +78,8 @@ public class Camera {
         }
 
         if (vector.x != 0 && vector.z != 0) {
-            double alphaH = res.height * vector.x * vector.z / 2 / Math.sqrt(Math.pow(vector.x * vector.z, 2) + Math.pow(vector.y * vector.z, 2) + 2 * Math.pow(vector.x * vector.y, 2) + Math.pow(vector.x, 4) + Math.pow(vector.y, 2));
-            double xbH = -alphaH,
+            double alphaH = -res.height * vector.x * vector.z / 2 / Math.sqrt(Math.pow(vector.x * vector.z, 2) + Math.pow(vector.y * vector.z, 2) + 2 * Math.pow(vector.x * vector.y, 2) + Math.pow(vector.x, 4) + Math.pow(vector.y, 4));
+            double xbH = alphaH,
                     ybH = vector.y/vector.x*xbH,
                     zbH = -(vector.x*xbH+vector.y*ybH)/vector.z;
             bH = new Vector3D(Math.signum(zbH)*xbH, Math.signum(zbH)*ybH, Math.abs(zbH));
@@ -102,13 +102,13 @@ public class Camera {
                 bH = basises.getValue();
         Double roW = null, roH = null;
         if(bH.y != 0 && bH.z != 0 && bW.y != 0 && bW.z != 0) {
-            roW = (bH.z * (projection.y - smm.y) - bH.y * (projection.z - smm.z)) / (bH.y * bW.y - bH.z * bW.z);
+            roW = (bH.z * (projection.y - smm.y) - bH.y * (projection.z - smm.z)) / (bH.z * bW.y - bH.y * bW.z);
             roH = (projection.z-smm.z-bW.z*roW)/bH.z;
         }else if(bH.x != 0 && bH.z != 0 && bW.x != 0 && bW.z != 0) {
-            roW = (bH.z * (projection.x - smm.x) - bH.x * (projection.z - smm.z)) / (bH.x * bW.x - bH.z * bW.z);
+            roW = (bH.z * (projection.x - smm.x) - bH.x * (projection.z - smm.z)) / (bH.z * bW.x - bH.x * bW.z);
             roH = (projection.x - smm.x - bW.x * roW) / bH.x;
         }else if(bH.x != 0 && bH.y != 0 && bW.x != 0 && bW.y != 0) {
-            roW = (bH.y * (projection.x - smm.x) - bH.x * (projection.y - smm.y)) / (bH.x * bW.x - bH.y * bW.y);
+            roW = (bH.y * (projection.x - smm.x) - bH.x * (projection.y - smm.y)) / (bH.y * bW.x - bH.x * bW.y);
             roH = (projection.x - smm.x - bW.x * roW) / bH.x;
         }else {
             if(bH.x == 0 && bW.x != 0){
