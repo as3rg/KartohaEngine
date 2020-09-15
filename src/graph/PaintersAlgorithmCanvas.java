@@ -28,6 +28,12 @@ public class PaintersAlgorithmCanvas extends JPanel {
         this.getInputMap().put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), RIGHT);
         this.getActionMap().put(RIGHT, right);
+        this.getInputMap().put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_W, 0), FORWARD);
+        this.getActionMap().put(FORWARD, forward);
+        this.getInputMap().put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), BACK);
+        this.getActionMap().put(BACK, back);
 
     }
 
@@ -36,13 +42,11 @@ public class PaintersAlgorithmCanvas extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             synchronized (camera) {
-                Pair<Vector3D, Vector3D> basises = camera.getBasises();
-                Vector3D bW = basises.getKey(),
-                        bH = basises.getValue();
+                Pair<Vector3D, Vector3D> basises = camera.getMovingBasises();
+                Vector3D mR = basises.getValue();
                 Point3D focus = camera.getFocus();
 
-                Camera.Resolution res = camera.getResolution();
-                camera.setFocus(new Point3D(focus.x-bW.x/(res.width/2.0), focus.y-bW.y/(res.width/2.0), focus.z-bW.z/(res.width/2.0)));
+                camera.setFocus(new Point3D(focus.x-step*mR.x, focus.y-step*mR.y, focus.z-step*mR.z));
                 repaint();
             }
         }
@@ -52,17 +56,45 @@ public class PaintersAlgorithmCanvas extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             synchronized (camera) {
-                Pair<Vector3D, Vector3D> basises = camera.getBasises();
-                Vector3D bW = basises.getKey(),
-                        bH = basises.getValue();
+                Pair<Vector3D, Vector3D> basises = camera.getMovingBasises();
+                Vector3D mR = basises.getValue();
                 Point3D focus = camera.getFocus();
 
-                Camera.Resolution res = camera.getResolution();
-                camera.setFocus(new Point3D(focus.x+bW.x/(res.width/2.0), focus.y+bW.y/(res.width/2.0), focus.z+bW.z/(res.width/2.0)));
+                camera.setFocus(new Point3D(focus.x+step*mR.x, focus.y+step*mR.y, focus.z+step*mR.z));
                 repaint();
             }
         }
     };
+
+    private static final String FORWARD = "Forward";
+    private Action forward = new AbstractAction(FORWARD) {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            synchronized (camera) {
+                Pair<Vector3D, Vector3D> basises = camera.getMovingBasises();
+                Vector3D mF = basises.getKey();
+                Point3D focus = camera.getFocus();
+
+                camera.setFocus(new Point3D(focus.x+step*mF.x, focus.y+step*mF.y, focus.z+step*mF.z));
+                repaint();
+            }
+        }
+    };
+    private static final String BACK = "Back";
+    private Action back = new AbstractAction(BACK) {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            synchronized (camera) {
+                Pair<Vector3D, Vector3D> basises = camera.getMovingBasises();
+                Vector3D mF = basises.getKey();
+                Point3D focus = camera.getFocus();
+
+                camera.setFocus(new Point3D(focus.x-step*mF.x, focus.y-step*mF.y, focus.z-step*mF.z));
+                repaint();
+            }
+        }
+    };
+    private final double step = 2;
 
     private final Set<Polygon3D> polygons = new HashSet<>();
     private final Camera camera;

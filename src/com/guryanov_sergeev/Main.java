@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
         int angle = 45;
         Camera.Resolution resolution = new Camera.Resolution(1280, 720);
-        Camera camera = new Camera(resolution, new Point3D(-Distance,-Distance, 100), new Vector3D(FocusLength,0, -20), 0);
+        Camera camera = new Camera(resolution, new Point3D(-Distance,-Distance, 100), new Vector3D(FocusLength,0, -20), 45*Math.PI/180);
         PaintersAlgorithmCanvas canvas = new PaintersAlgorithmCanvas(camera);
 
 //        Point3D A = new Point3D(-50, -50, -100),

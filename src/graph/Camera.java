@@ -65,17 +65,13 @@ public class Camera {
         this.focus = focus;
         this.vector = vector;
         this.res = resolution;
-        this.rotate = rotate;
+        this.rotate = -rotate;
     }
 
     public Pair<Vector3D, Vector3D> getBasises(){
         Vector3D bW, bH;
-        if (vector.y != 0){
-            double alphaW = res.width/2 * vector.y / Math.sqrt(vector.x*vector.x+vector.y*vector.y);
-            bW = new Vector3D(-alphaW, vector.x/vector.y * alphaW, 0);
-        }else{
-            bW = new Vector3D(0, Math.signum(vector.x)*res.width/2, 0);
-        }
+        double alphaW = res.width/ 2 / Math.sqrt(vector.x*vector.x+vector.y*vector.y);
+        bW = new Vector3D(-alphaW*vector.y, vector.x * alphaW, 0);
 
         if (vector.x != 0 && vector.z != 0) {
             double alphaH = -res.height * vector.x * vector.z / 2 / Math.sqrt(Math.pow(vector.x * vector.z, 2) + Math.pow(vector.y * vector.z, 2) + 2 * Math.pow(vector.x * vector.y, 2) + Math.pow(vector.x, 4) + Math.pow(vector.y, 4));
@@ -90,6 +86,17 @@ public class Camera {
         }
 
         return new Pair<>(bW, bH);
+    }
+
+    public Pair<Vector3D, Vector3D> getMovingBasises(){
+        Vector3D mR, mF;
+        double gamma = 1/Math.sqrt(vector.x*vector.x+vector.y*vector.y);
+        double COS = Math.cos(rotate), SIN = Math.sin(rotate);
+        mR = new Vector3D(-gamma*vector.y*COS, vector.x * gamma*COS,  SIN);
+
+        mF = new Vector3D(vector.x*gamma, vector.y*gamma, 0);
+
+        return new Pair<>(mF, mR);
     }
 
     public Point2D project(Point3D point3D){
@@ -147,8 +154,8 @@ public class Camera {
             }
         }
         assert roH != null && roW != null;
-        double cos = utils.Math.destroyMinusZeros(Math.cos(rotate)),
-                sin = utils.Math.destroyMinusZeros(Math.sin(rotate));
+        double cos = utils.Math.destroyMinusZeros(Math.cos(-rotate)),
+                sin = utils.Math.destroyMinusZeros(Math.sin(-rotate));
         return new Point2D(roW*res.width*cos-roH*res.height*sin + res.width/2, -roW*res.width*sin-roH*res.height*cos + res.height/2);
     }
 
