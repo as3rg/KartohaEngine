@@ -68,13 +68,13 @@ public class Camera {
         this.rotate = rotate;
     }
 
-    private Pair<Vector3D, Vector3D> getBasises(){
+    public Pair<Vector3D, Vector3D> getBasises(){
         Vector3D bW, bH;
         if (vector.y != 0){
-            double alphaW = -res.width/2 * vector.y / Math.sqrt(vector.x*vector.x+vector.y*vector.y);
+            double alphaW = res.width/2 * vector.y / Math.sqrt(vector.x*vector.x+vector.y*vector.y);
             bW = new Vector3D(-alphaW, vector.x/vector.y * alphaW, 0);
         }else{
-            bW = new Vector3D(0, -Math.signum(vector.x)*res.width/2, 0);
+            bW = new Vector3D(0, Math.signum(vector.x)*res.width/2, 0);
         }
 
         if (vector.x != 0 && vector.z != 0) {
