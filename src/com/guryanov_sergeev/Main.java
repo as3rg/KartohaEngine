@@ -15,7 +15,7 @@ import java.util.Random;
 public class Main {
 
     public static final int FocusLength = 200;
-    public static final int Distance = 1000;
+    public static final int Distance = 500;
     public static void main(String[] args) {
         int angle = 45;
         Camera.Resolution resolution = new Camera.Resolution(1280, 720);
@@ -58,7 +58,7 @@ public class Main {
         for (int j = 0; j < 360; j+= step) {
             List<Point3D> B = new ArrayList<>();
             for (int i = 0; i < 360; i += step) {
-                B.add(new Point3D(R * utils.Math.destroyMinusZeros(Math.sin(j * Math.PI / 180)) * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), R * utils.Math.destroyMinusZeros(Math.sin(j * Math.PI / 180)) * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), R * utils.Math.destroyMinusZeros(Math.cos(j * Math.PI / 180))));
+                B.add(new Point3D(100+R * utils.Math.destroyMinusZeros(Math.sin(j * Math.PI / 180)) * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), 100+R * utils.Math.destroyMinusZeros(Math.sin(j * Math.PI / 180)) * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), R * utils.Math.destroyMinusZeros(Math.cos(j * Math.PI / 180))));
             }
             C.add(B);
         }
@@ -91,13 +91,13 @@ public class Main {
 //                canvas.getPolygons().clear();
 //                canvas.getPolygons().add(new Polygon3D(new Point3D(0,0,0), new Point3D(0,0,50), new Point3D(50*utils.Math.destroyMinusZeros(Math.cos(2*i * Math.PI / 180)),50*utils.Math.destroyMinusZeros(Math.sin(2*i * Math.PI / 180)),50), Color.LIGHT_GRAY));
                 camera.setFocus(new Point3D(-Distance * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), -Distance * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), 100));
-                camera.setVector(new Vector3D(FocusLength * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), FocusLength * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), -10));
-                System.out.println(i);
+                camera.setVector(new Vector3D(FocusLength * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), FocusLength * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), -150));
+//                System.out.println(i);
 //                camera.setRotateAngle(Math.PI * i / 180);
 //                System.out.printf("%.2f %.2f\n",FocusLength * utils.Math.destroyMinusZeros(java.lang.Math.cos(2*i * java.lang.Math.PI / 180)), FocusLength * utils.Math.destroyMinusZeros(java.lang.Math.sin(2*i * java.lang.Math.PI / 180)));
                 canvas.repaint();
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

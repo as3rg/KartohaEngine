@@ -79,13 +79,12 @@ public class Camera {
 
         if (vector.x != 0 && vector.z != 0) {
             double alphaH = -res.height * vector.x * vector.z / 2 / Math.sqrt(Math.pow(vector.x * vector.z, 2) + Math.pow(vector.y * vector.z, 2) + 2 * Math.pow(vector.x * vector.y, 2) + Math.pow(vector.x, 4) + Math.pow(vector.y, 4));
-            double xbH = alphaH,
-                    ybH = vector.y/vector.x*xbH,
-                    zbH = -(vector.x*xbH+vector.y*ybH)/vector.z;
-            bH = new Vector3D(Math.signum(zbH)*xbH, Math.signum(zbH)*ybH, Math.abs(zbH));
+            double ybH = vector.y/vector.x* alphaH,
+                    zbH = -(vector.x* alphaH +vector.y*ybH)/vector.z;
+            bH = new Vector3D(Math.signum(zbH)* alphaH, Math.signum(zbH)*ybH, Math.abs(zbH));
         }else if(vector.z != 0){
             double alphaH = Math.signum(vector.y/vector.z) * res.height * vector.z / 2 / Math.sqrt(vector.y*vector.y+vector.z*vector.z);
-            bH = new Vector3D(0, -alphaH, vector.y/vector.z*alphaH);
+            bH = new Vector3D(0, -alphaH, -vector.y/vector.z*alphaH);
         }else{
             bH = new Vector3D(0,0,res.height/2);
         }
@@ -119,12 +118,12 @@ public class Camera {
                 roW = (projection.z-smm.z)/bW.z;
             }
 
-            if(bH.x != 0 && bW.x == 0){
-                roH = (projection.x-smm.x)/bH.x;
-            }else if(bH.y != 0 && bW.y == 0){
-                roH = (projection.y-smm.y)/bH.y;
-            }else if(bH.z != 0 && bW.z == 0){
+            if(bH.y != 0 && bW.y == 0) {
                 roH = (projection.z-smm.z)/bH.z;
+            }else if(bH.x != 0 && bW.x == 0){
+                roH = (projection.x-smm.x)/bH.x;
+            }else if(bH.z != 0 && bW.z == 0){
+                roH = (projection.y-smm.y)/bH.y;
             }
 
             if(roW == null && roH != null){
