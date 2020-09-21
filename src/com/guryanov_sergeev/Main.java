@@ -16,12 +16,12 @@ import java.util.Random;
 
 public class Main {
 
-    public static final int FocusLength = 200;
+    public static final int FocusLength = 300;
     public static final int Distance = 500;
     public static void main(String[] args) {
         int angle = 45;
         Camera.Resolution resolution = new Camera.Resolution(1280, 720);
-        Camera camera = new Camera(resolution, new Point3D(-Distance,-Distance, 100), new Vector3D(FocusLength,0, -20), 45*Math.PI/180);
+        Camera camera = new Camera(resolution, new Point3D(-Distance,-Distance, 100), new Vector3D(FocusLength,20, 20), 0);
         PaintersAlgorithmCanvas canvas = new PaintersAlgorithmCanvas(camera);
 
 //        Point3D A = new Point3D(-50, -50, -100),
@@ -52,28 +52,28 @@ public class Main {
 //        canvas.getPolygons().add(new Polygon3D(A, C, C2, Color.ORANGE));
 //
 //        canvas.getPolygons().add(new Polygon3D(A2, B2, C2, Color.LIGHT_GRAY));
-        canvas.getPolygons().add(new Polygon3D(new Point3D(0,0,0), new Point3D(0,0,50), new Point3D(0,50,50), Color.LIGHT_GRAY));
-//        java.util.List<java.util.List<Point3D>> C = new ArrayList<>();
-//        int R = 100;
-//        int step = 20;
-//        for (int j = 0; j < 360; j+= step) {
-//            List<Point3D> B = new ArrayList<>();
-//            for (int i = 0; i < 360; i += step) {
-//                B.add(new Point3D(100+R * utils.Math.destroyMinusZeros(Math.sin(j * Math.PI / 180)) * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), 100+R * utils.Math.destroyMinusZeros(Math.sin(j * Math.PI / 180)) * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), R * utils.Math.destroyMinusZeros(Math.cos(j * Math.PI / 180))));
-//            }
-//            C.add(B);
-//        }n
-//        System.out.println(360*360/step/step+" points");
-//        Random r = new Random();
-//        for(int j = 0; j < 360/step -1; j++) {
-//            List<Point3D> A = C.get(j), B = C.get(j+1);
-//            for (int i = 0; i < 360/step; i += 1) {
-//                Color c = new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256), r.nextInt(256));
-//                canvas.getPolygons().add(new Polygon3D(A.get(i), B.get(i), A.get((i + 1) % (360/step)), c));
-//                canvas.getPolygons().add(new Polygon3D(A.get(i), B.get(i), B.get((i + 1) % (360/step)), c));
-//            }
-//        }
-//        System.out.println(2*360*360/step/step+" polygons");
+//        canvas.getPolygons().add(new Polygon3D(new Point3D(0,0,0), new Point3D(0,0,50), new Point3D(0,50,50), Color.LIGHT_GRAY));
+        java.util.List<java.util.List<Point3D>> C = new ArrayList<>();
+        int R = 100;
+        int step = 20;
+        for (int j = 0; j < 360; j+= step) {
+            List<Point3D> B = new ArrayList<>();
+            for (int i = 0; i < 360; i += step) {
+                B.add(new Point3D(100+R * utils.Math.destroyMinusZeros(Math.sin(j * Math.PI / 180)) * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), 100+R * utils.Math.destroyMinusZeros(Math.sin(j * Math.PI / 180)) * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), R * utils.Math.destroyMinusZeros(Math.cos(j * Math.PI / 180))));
+            }
+            C.add(B);
+        }
+        System.out.println(360*360/step/step+" points");
+        Random r = new Random();
+        for(int j = 0; j < 360/step -1; j++) {
+            List<Point3D> A = C.get(j), B = C.get(j+1);
+            for (int i = 0; i < 360/step; i += 1) {
+                Color c = new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256), r.nextInt(256));
+                canvas.getPolygons().add(new Polygon3D(A.get(i), B.get(i), A.get((i + 1) % (360/step)), c));
+                canvas.getPolygons().add(new Polygon3D(A.get(i), B.get(i), B.get((i + 1) % (360/step)), c));
+            }
+        }
+        System.out.println(2*360*360/step/step+" polygons");
 
         JFrame frame = new JFrame();
 
