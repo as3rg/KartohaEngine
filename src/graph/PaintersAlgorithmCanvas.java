@@ -60,6 +60,14 @@ public class PaintersAlgorithmCanvas extends JPanel {
         this.getInputMap().put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), CAMERAXMINUS);
         this.getActionMap().put(CAMERAXMINUS, cameraXMinus);
+
+        this.getInputMap().put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), CAMERAYPLUS);
+        this.getActionMap().put(CAMERAYPLUS, cameraYPlus);
+
+        this.getInputMap().put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), CAMERAYMINUS);
+        this.getActionMap().put(CAMERAYMINUS, cameraYMinus);
     }
 
     private static final String CAMERAXPLUS = "CameraX+";
@@ -67,7 +75,7 @@ public class PaintersAlgorithmCanvas extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             synchronized (camera) {
-                Vector3D rR = camera.getRotatedVectors(-rotateStep, 0).getKey();
+                Vector3D rR = camera.getRightRotatedVectors(-rotateStep);
                 camera.setVector(rR);
                 repaint();
             }
@@ -79,8 +87,32 @@ public class PaintersAlgorithmCanvas extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             synchronized (camera) {
-                Vector3D rR = camera.getRotatedVectors(rotateStep, 0).getKey();
+                Vector3D rR = camera.getRightRotatedVectors(rotateStep);
                 camera.setVector(rR);
+                repaint();
+            }
+        }
+    };
+
+    private static final String CAMERAYPLUS = "CameraY+";
+    private Action cameraYPlus = new AbstractAction(CAMERAYPLUS) {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            synchronized (camera) {
+                Vector3D rT = camera.getUpRotatedVectors(-rotateStep);
+                camera.setVector(rT);
+                repaint();
+            }
+        }
+    };
+
+    private static final String CAMERAYMINUS = "CameraY-";
+    private Action cameraYMinus = new AbstractAction(CAMERAYMINUS) {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            synchronized (camera) {
+                Vector3D rT = camera.getUpRotatedVectors(rotateStep);
+                camera.setVector(rT);
                 repaint();
             }
         }
