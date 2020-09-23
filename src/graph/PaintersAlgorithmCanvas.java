@@ -1,7 +1,7 @@
 package graph;
 
+import utils.Drawable;
 import utils.Point3D;
-import utils.Polygon2D;
 import utils.Polygon3D;
 import utils.Vector3D;
 
@@ -99,7 +99,7 @@ public class PaintersAlgorithmCanvas extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             synchronized (camera) {
-                Vector3D rT = camera.getUpRotatedVectors(-rotateStep);
+                Vector3D rT = camera.getTopRotatedVectors(-rotateStep);
                 camera.setVector(rT);
                 repaint();
             }
@@ -111,7 +111,7 @@ public class PaintersAlgorithmCanvas extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             synchronized (camera) {
-                Vector3D rT = camera.getUpRotatedVectors(rotateStep);
+                Vector3D rT = camera.getTopRotatedVectors(rotateStep);
                 camera.setVector(rT);
                 repaint();
             }
@@ -223,7 +223,7 @@ public class PaintersAlgorithmCanvas extends JPanel {
     };
     private final double step = 10;
 
-    private final Set<Polygon3D> polygons = new HashSet<>();
+    private final Set<Drawable> drawables = new HashSet<>();
     private final Camera camera;
 
     long drawingTime, calculatingTime;
@@ -241,8 +241,8 @@ public class PaintersAlgorithmCanvas extends JPanel {
             g.clearRect(0, 0, (int) camera.getResolution().width, (int) camera.getResolution().height);
             drawingTime += System.nanoTime() - startDrawing;
 
-            for (Polygon3D polygon3D : polygons) {
-                paintPolygon(g, camera, polygon3D);
+            for (Drawable drawable : drawables) {
+                drawable.draw(g, camera);
             }
 
             startDrawing = System.nanoTime();
@@ -252,19 +252,7 @@ public class PaintersAlgorithmCanvas extends JPanel {
         }
     }
 
-    public void paintPolygon(Graphics g, Camera camera, Polygon3D polygon3D){
-        long startCalculating = System.nanoTime();
-        Polygon2D polygon2D = camera.project(polygon3D);
-        calculatingTime += System.nanoTime() - startCalculating;
-        long startDrawing = System.nanoTime();
-        g.setColor(polygon2D.color);
-        g.drawLine(((int)polygon2D.a1.x), (int)polygon2D.a1.y, (int)polygon2D.a2.x, (int)polygon2D.a2.y);
-        g.drawLine(((int)polygon2D.a1.x), (int)polygon2D.a1.y, (int)polygon2D.a3.x, (int)polygon2D.a3.y);
-        g.drawLine(((int)polygon2D.a3.x), (int)polygon2D.a3.y, (int)polygon2D.a2.x, (int)polygon2D.a2.y);
-        drawingTime += System.nanoTime() - startDrawing;
-    }
-
-    public Set<Polygon3D> getPolygons() {
-        return polygons;
+    public Set<Drawable> getDrawables() {
+        return drawables;
     }
 }

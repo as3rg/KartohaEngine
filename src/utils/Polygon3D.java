@@ -1,11 +1,13 @@
 package utils;
 
+import graph.Camera;
+
 import java.awt.*;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class Polygon3D implements Object3D {
+public class Polygon3D implements Object3D, Drawable {
     public final Point3D a1, a2, a3;
     public final Color color;
 
@@ -24,5 +26,10 @@ public class Polygon3D implements Object3D {
     @Override
     public Point3D getHighPoint() {
         return new Point3D(max(max(a1.x, a2.x), a3.x), max(max(a1.y, a2.y), a3.y), max(max(a1.z, a2.z), a3.z));
+    }
+
+    @Override
+    public void draw(Graphics g, Camera camera) {
+        camera.project(this).draw(g, camera);
     }
 }

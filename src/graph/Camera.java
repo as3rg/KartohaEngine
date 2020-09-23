@@ -70,32 +70,36 @@ public class Camera {
 
     public Pair<Vector3D, Vector3D> getBasises(double w, double h){
         Vector3D bW, bH;
-        double alphaW = w / Math.sqrt(vector.x*vector.x+vector.y*vector.y);
+        double alphaW = 1 / Math.sqrt(vector.x*vector.x+vector.y*vector.y);
         bW = new Vector3D(-alphaW*vector.y, vector.x * alphaW, 0);
 
         if (vector.x != 0 && vector.z != 0) {
-            double alphaH = -h * vector.x * vector.z / Math.sqrt(Math.pow(vector.x * vector.z, 2) + Math.pow(vector.y * vector.z, 2) + 2 * Math.pow(vector.x * vector.y, 2) + Math.pow(vector.x, 4) + Math.pow(vector.y, 4));
+            double alphaH = - vector.x * vector.z / Math.sqrt(Math.pow(vector.x * vector.z, 2) + Math.pow(vector.y * vector.z, 2) + 2 * Math.pow(vector.x * vector.y, 2) + Math.pow(vector.x, 4) + Math.pow(vector.y, 4));
             double ybH = vector.y/vector.x* alphaH,
                     zbH = -(vector.x* alphaH +vector.y*ybH)/vector.z;
             bH = new Vector3D(Math.signum(zbH)* alphaH, Math.signum(zbH)*ybH, Math.abs(zbH));
         }else if(vector.z != 0){
-            double alphaH = Math.signum(vector.y/vector.z) * h * vector.z / Math.sqrt(vector.y*vector.y+vector.z*vector.z);
+            double alphaH = Math.signum(vector.y/vector.z) * vector.z / Math.sqrt(vector.y*vector.y+vector.z*vector.z);
             bH = new Vector3D(0, -alphaH, -vector.y/vector.z*alphaH);
         }else{
-            bH = new Vector3D(0,0,h);
+            bH = new Vector3D(0,0,1);
         }
 
-        return new Pair<>(bW, bH);
+        double cos = utils.Math.destroyMinusZeros(Math.cos(rotate)),
+                sin = utils.Math.destroyMinusZeros(Math.sin(rotate));
+        Vector3D bW2 = new Vector3D(w*(bW.x*cos+bH.x*sin),w*(bW.y*cos+bH.y*sin),w*(bW.z*cos+bH.z*sin)),
+                bH2 = new Vector3D(h*(bH.x*cos-bW.x*sin),h*(bH.y*cos-bW.y*sin),h*(bH.z*cos-bW.z*sin));
+
+        return new Pair<>(bW2, bH2);
     }
 
     public Vector3D getRightRotatedVectors(double r){
         Vector3D rR = null;
         Pair<Vector3D, Vector3D> basises = getBasises(1, 1);
-        Vector3D bW = basises.getKey(),
-                bH = basises.getValue();
-        double xW = vector.x + bW.x*Math.cos(rotate) + bH.x*Math.sin(rotate),
-                yW = vector.y + bW.y*Math.cos(rotate) + bH.y*Math.sin(rotate),
-                zW = vector.z + bW.z*Math.cos(rotate) + bH.z*Math.sin(rotate),
+        Vector3D bW = basises.getKey();
+        double xW = vector.x + bW.x,
+                yW = vector.y + bW.y,
+                zW = vector.z + bW.z,
                 n = Math.sqrt(Math.pow(vector.x, 2)+Math.pow(vector.y, 2)+Math.pow(vector.z, 2));
         double x = vector.y * zW - vector.z*yW,
                 y = vector.z * xW - vector.x * zW,
@@ -113,7 +117,7 @@ public class Camera {
                 double zR2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         yR2 = n2 - k*zR2,
                         xR2 = -(y*yR2+z*zR2)/x;
-                if ((r > 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
+                if ((r < 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
                     rR = new Vector3D(xR, yR, zR);
                 }else{
                     rR = new Vector3D(xR2, yR2, zR2);
@@ -130,7 +134,7 @@ public class Camera {
                 double yR2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         zR2 = n2 - k*yR2,
                         xR2 = -(y*yR2+z*zR2)/x;
-                if ((r > 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
+                if ((r < 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
                     rR = new Vector3D(xR, yR, zR);
                 }else{
                     rR = new Vector3D(xR2, yR2, zR2);
@@ -149,7 +153,7 @@ public class Camera {
                 double zR2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         xR2 = n2 - k*zR2,
                         yR2 = -(x*xR2+z*zR2)/y;
-                if ((r > 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
+                if ((r < 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
                     rR = new Vector3D(xR, yR, zR);
                 }else{
                     rR = new Vector3D(xR2, yR2, zR2);
@@ -166,7 +170,7 @@ public class Camera {
                 double xR2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         zR2 = n2 - k*xR2,
                         yR2 = -(x*xR2+z*zR2)/y;
-                if ((r > 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
+                if ((r < 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
                     rR = new Vector3D(xR, yR, zR);
                 }else{
                     rR = new Vector3D(xR2, yR2, zR2);
@@ -185,7 +189,7 @@ public class Camera {
                 double xR2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         yR2 = n2 - k*xR2,
                         zR2 = -(y*yR2+x*xR2)/z;
-                if ((r > 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
+                if ((r < 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
                     rR = new Vector3D(xR, yR, zR);
                 }else{
                     rR = new Vector3D(xR2, yR2, zR2);
@@ -202,7 +206,7 @@ public class Camera {
                 double yR2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         xR2 = n2 - k*yR2,
                         zR2 = -(y*yR2+x*xR2)/z;
-                if ((r > 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
+                if ((r < 0) == (Math.pow(xR-xW,2)+Math.pow(yR-yW,2)+Math.pow(zR-zW,2) < Math.pow(xR2-xW,2)+Math.pow(yR2-yW,2)+Math.pow(zR2-zW,2))){
                     rR = new Vector3D(xR, yR, zR);
                 }else{
                     rR = new Vector3D(xR2, yR2, zR2);
@@ -213,14 +217,13 @@ public class Camera {
         return rR;
     }
 
-    public Vector3D getUpRotatedVectors(double t){
+    public Vector3D getTopRotatedVectors(double t){
         Vector3D rT = null;
         Pair<Vector3D, Vector3D> basises = getBasises(1, 1);
-        Vector3D bW = basises.getKey(),
-                bH = basises.getValue();
-        double xH = vector.x - bW.x*Math.sin(rotate) + bH.x*Math.cos(rotate),
-                yH = vector.y - bW.y*Math.sin(rotate) + bH.y*Math.cos(rotate),
-                zH = vector.z - bW.z*Math.sin(rotate) + bH.z*Math.cos(rotate),
+        Vector3D bH = basises.getValue();
+        double xH = vector.x + bH.x,
+                yH = vector.y + bH.y,
+                zH = vector.z + bH.z,
                 n = Math.sqrt(Math.pow(vector.x, 2)+Math.pow(vector.y, 2)+Math.pow(vector.z, 2));
         double x = vector.y * zH - vector.z*yH,
                 y = vector.z * xH - vector.x * zH,
@@ -238,7 +241,7 @@ public class Camera {
                 double zT2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         yT2 = n2 - k*zT2,
                         xT2 = -(y*yT2+z*zT2)/x;
-                if ((t > 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
+                if ((t < 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
                     rT = new Vector3D(xT, yT, zT);
                 }else{
                     rT = new Vector3D(xT2, yT2, zT2);
@@ -255,7 +258,7 @@ public class Camera {
                 double yT2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         zT2 = n2 - k*yT2,
                         xT2 = -(y*yT2+z*zT2)/x;
-                if ((t > 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
+                if ((t < 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
                     rT = new Vector3D(xT, yT, zT);
                 }else{
                     rT = new Vector3D(xT2, yT2, zT2);
@@ -274,7 +277,7 @@ public class Camera {
                 double zT2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         xT2 = n2 - k*zT2,
                         yT2 = -(x*xT2+z*zT2)/y;
-                if ((t > 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
+                if ((t < 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
                     rT = new Vector3D(xT, yT, zT);
                 }else{
                     rT = new Vector3D(xT2, yT2, zT2);
@@ -291,7 +294,7 @@ public class Camera {
                 double xT2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         zT2 = n2 - k*xT2,
                         yT2 = -(x*xT2+z*zT2)/y;
-                if ((t > 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
+                if ((t < 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
                     rT = new Vector3D(xT, yT, zT);
                 }else{
                     rT = new Vector3D(xT2, yT2, zT2);
@@ -310,7 +313,7 @@ public class Camera {
                 double xT2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         yT2 = n2 - k*xT2,
                         zT2 = -(y*yT2+x*xT2)/z;
-                if ((t > 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
+                if ((t < 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
                     rT = new Vector3D(xT, yT, zT);
                 }else{
                     rT = new Vector3D(xT2, yT2, zT2);
@@ -327,7 +330,7 @@ public class Camera {
                 double yT2 = (-b2 - Math.sqrt(b2*b2-4*a2*c2))/(2*a2),
                         xT2 = n2 - k*yT2,
                         zT2 = -(y*yT2+x*xT2)/z;
-                if ((t > 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
+                if ((t < 0) == (Math.pow(xT-xH,2)+Math.pow(yT-yH,2)+Math.pow(zT-zH,2) < Math.pow(xT2-xH,2)+Math.pow(yT2-yH,2)+Math.pow(zT2-zH,2))){
                     rT = new Vector3D(xT, yT, zT);
                 }else{
                     rT = new Vector3D(xT2, yT2, zT2);
@@ -340,12 +343,12 @@ public class Camera {
 
     public Triplet<Vector3D, Vector3D, Vector3D> getMovingBasises(double f, double r, double t){
         Vector3D mR, mF, mT;
-        double gamma = 1/Math.sqrt(vector.x*vector.x+vector.y*vector.y);
-        double COS = Math.cos(rotate), SIN = Math.sin(rotate);
-        mR = new Vector3D(-gamma*vector.y*COS*r, vector.x * gamma*COS*r,  SIN*r);
-        mT = new Vector3D(gamma*vector.y*SIN*t, -vector.x * gamma*SIN*t,  COS*t);
+        Pair<Vector3D, Vector3D> basises = getBasises(r, t);
+        mR = basises.getKey();
+        mT = basises.getValue();
 
-        mF = new Vector3D(vector.x*gamma*f, vector.y*gamma*f, 0);
+        double n = Math.sqrt(Math.pow(vector.x, 2)+Math.pow(vector.y, 2)+Math.pow(vector.z, 2));
+        mF = new Vector3D(vector.x*f/n, vector.y*f/n, vector.z*f/n);
 
         return new Triplet<>(mF, mR, mT);
     }
@@ -405,8 +408,8 @@ public class Camera {
             }
         }
         assert roH != null && roW != null;
-        double cos = utils.Math.destroyMinusZeros(Math.cos(-rotate)),
-                sin = utils.Math.destroyMinusZeros(Math.sin(-rotate));
+        double cos = 1,// utils.Math.destroyMinusZeros(Math.cos(-rotate)),
+                sin = 0;//utils.Math.destroyMinusZeros(Math.sin(-rotate));
         return new Point2D(roW*res.width*cos-roH*res.height*sin + res.width/2, -roW*res.width*sin-roH*res.height*cos + res.height/2);
     }
 

@@ -1,8 +1,10 @@
 package utils;
 
+import graph.Camera;
+
 import java.awt.*;
 
-public class Polygon2D {
+public class Polygon2D implements Drawable {
     public final Point2D a1, a2, a3;
     public final Color color;
 
@@ -11,5 +13,13 @@ public class Polygon2D {
         this.a2 = a2;
         this.a3 = a3;
         this.color = color;
+    }
+
+    @Override
+    public void draw(Graphics g, Camera camera) {
+        g.setColor(color);
+        g.drawLine(((int)a1.x), (int)a1.y, (int)a2.x, (int)a2.y);
+        g.drawLine(((int)a1.x), (int)a1.y, (int)a3.x, (int)a3.y);
+        g.drawLine(((int)a3.x), (int)a3.y, (int)a2.x, (int)a2.y);
     }
 }
