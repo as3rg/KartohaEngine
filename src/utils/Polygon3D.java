@@ -3,6 +3,7 @@ package utils;
 import graph.Camera;
 
 import java.awt.*;
+import java.util.Set;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -30,6 +31,8 @@ public class Polygon3D implements Object3D, Drawable {
 
     @Override
     public void draw(Graphics g, Camera camera) {
-        camera.project(this).draw(g, camera);
+        Polygon2D p = camera.project(this);
+        if (p != null)
+            p.draw(g, camera);
     }
 }

@@ -18,8 +18,6 @@ public class Polygon2D implements Drawable {
     @Override
     public void draw(Graphics g, Camera camera) {
         g.setColor(color);
-        g.drawLine(((int)a1.x), (int)a1.y, (int)a2.x, (int)a2.y);
-        g.drawLine(((int)a1.x), (int)a1.y, (int)a3.x, (int)a3.y);
-        g.drawLine(((int)a3.x), (int)a3.y, (int)a2.x, (int)a2.y);
+        g.drawPolygon(new int[]{(int)a1.x,(int)a2.x,(int)a3.x},new int[]{(int)a1.y,(int)a2.y,(int)a3.y},3);
     }
 }
