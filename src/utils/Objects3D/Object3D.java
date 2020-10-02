@@ -1,4 +1,6 @@
-package utils;
+package utils.Objects3D;
+
+import utils.Objects3D.Point3D;
 
 public interface Object3D {
     Point3D getLowPoint();

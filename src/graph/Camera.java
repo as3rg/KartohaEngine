@@ -3,6 +3,9 @@ package graph;
 import com.sun.istack.internal.Nullable;
 import javafx.util.Pair;
 import utils.*;
+import utils.Objects2D.Point2D;
+import utils.Objects2D.Polygon2D;
+import utils.Objects3D.*;
 
 import java.lang.Math;
 
@@ -26,12 +29,13 @@ public class Camera {
         calculateBasises();
     }
 
-    public Plane getScreen() {
+    public Plane3D getScreen() {
         return screen;
     }
 
-    public void setScreen(Plane screen) {
+    public void setScreen(Plane3D screen) {
         this.screen = screen;
+        calculateBasises();
     }
 
     public static class Resolution{
@@ -44,11 +48,11 @@ public class Camera {
     }
     static class UndefinedVectorOfView extends RuntimeException{}
 
-    private Plane screen;
+    private Plane3D screen;
     private Resolution res;
     private double rotate;
 
-    public Camera(Plane screen, Resolution resolution, double rotate) {
+    public Camera(Plane3D screen, Resolution resolution, double rotate) {
         this.screen = screen;
         if(screen.vector.x == 0 && screen.vector.y == 0)
             throw new UndefinedVectorOfView();
@@ -95,8 +99,8 @@ public class Camera {
                 zW = screen.vector.z + bW.z,
                 n = Math.sqrt(Math.pow(screen.vector.x, 2)+Math.pow(screen.vector.y, 2)+Math.pow(screen.vector.z, 2));
         Point3D zero = new Point3D(0,0,0);
-        Plane plane = new Plane(zero, screen.vector.addToPoint(zero), new Point3D(xW, yW, zW));
-        double x = plane.vector.x, y = plane.vector.y, z = plane.vector.z;
+        Plane3D plane3D = new Plane3D(zero, screen.vector.addToPoint(zero), new Point3D(xW, yW, zW));
+        double x = plane3D.vector.x, y = plane3D.vector.y, z = plane3D.vector.z;
         if (utils.Math.destroyMinusZeros(x) != 0){
             if (utils.Math.destroyMinusZeros(screen.vector.y - screen.vector.x*y/x) != 0){
                 double k = utils.Math.destroyMinusZeros(screen.vector.z - screen.vector.x*z/x)/(screen.vector.y - screen.vector.x*y/x),
@@ -219,8 +223,8 @@ public class Camera {
                 zH = screen.vector.z + bH.z,
                 n = Math.sqrt(Math.pow(screen.vector.x, 2)+Math.pow(screen.vector.y, 2)+Math.pow(screen.vector.z, 2));
         Point3D zero = new Point3D(0,0,0);
-        Plane plane = new Plane(zero, screen.vector.addToPoint(zero), new Point3D(xH, yH, zH));
-        double x = plane.vector.x, y = plane.vector.y, z = plane.vector.z;
+        Plane3D plane3D = new Plane3D(zero, screen.vector.addToPoint(zero), new Point3D(xH, yH, zH));
+        double x = plane3D.vector.x, y = plane3D.vector.y, z = plane3D.vector.z;
         if (utils.Math.destroyMinusZeros(x) != 0){
             if (utils.Math.destroyMinusZeros(screen.vector.y - screen.vector.x*y/x) != 0){
                 double k = utils.Math.destroyMinusZeros(screen.vector.z - screen.vector.x*z/x)/(screen.vector.y - screen.vector.x*y/x),
@@ -348,7 +352,7 @@ public class Camera {
 
     @Nullable
     public Point2D project(Point3D point3D){
-        Point3D projection = screen.getIntersectionPoint(new Line(screen.point, point3D));
+        Point3D projection = screen.getIntersection(new Line3D(screen.point, point3D));
         if (projection == null)
             return null;
         Point3D smm = new Point3D(screen.point.x+screen.vector.x, screen.point.y+screen.vector.y,screen.point.z+screen.vector.z);

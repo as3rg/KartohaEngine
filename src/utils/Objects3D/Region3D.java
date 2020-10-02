@@ -1,12 +1,15 @@
-package utils;
+package utils.Objects3D;
+
+import utils.Objects3D.Object3D;
+import utils.Objects3D.Point3D;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class Region implements Object3D {
+public class Region3D implements Object3D {
     private final Point3D low, high;
 
-    public Region(Point3D a, Point3D b) {
+    public Region3D(Point3D a, Point3D b) {
         low = new Point3D(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z));
         high = new Point3D(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z));
     }

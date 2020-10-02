@@ -2,8 +2,11 @@ package com.guryanov_sergeev;
 
 import graph.Camera;
 import graph.PaintersAlgorithmCanvas;
-import javafx.stage.Screen;
 import utils.*;
+import utils.Objects3D.Plane3D;
+import utils.Objects3D.Point3D;
+import utils.Objects3D.Polygon3D;
+import utils.Objects3D.Vector3D;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
         int angle = 45;
         Camera.Resolution resolution = new Camera.Resolution(1280, 720);
-        Camera camera = new Camera(new Plane(new Vector3D(FocusLength,0,0), new Point3D(-Distance,-Distance,100)), resolution, 0);
+        Camera camera = new Camera(new Plane3D(new Vector3D(FocusLength,0,0), new Point3D(-Distance,-Distance,100)), resolution, 0);
         PaintersAlgorithmCanvas canvas = new PaintersAlgorithmCanvas(camera);
 
         //Куб

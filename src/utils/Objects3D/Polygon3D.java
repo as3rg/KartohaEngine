@@ -1,9 +1,10 @@
-package utils;
+package utils.Objects3D;
 
 import graph.Camera;
+import utils.Drawable;
+import utils.Objects2D.Polygon2D;
 
 import java.awt.*;
-import java.util.Set;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;

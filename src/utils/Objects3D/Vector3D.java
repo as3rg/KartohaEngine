@@ -1,4 +1,6 @@
-package utils;
+package utils.Objects3D;
+
+import utils.Objects3D.Point3D;
 
 public class Vector3D {
     public final double x,y,z;

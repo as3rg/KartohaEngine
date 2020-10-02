@@ -1,6 +1,9 @@
 package utils;
 
 import com.sun.istack.internal.Nullable;
+import utils.Objects3D.Object3D;
+import utils.Objects3D.Point3D;
+import utils.Objects3D.Region3D;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -87,7 +90,7 @@ public class SearchTree3D {
         return count;
     }
 
-    public Set<Object3D> get(Region r) {
+    public Set<Object3D> get(Region3D r) {
         if (r.getHighPoint().x < low.x
                 || r.getHighPoint().y < low.y
                 || r.getHighPoint().z < low.z
