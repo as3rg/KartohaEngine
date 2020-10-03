@@ -1,14 +1,10 @@
 package utils.Objects3D;
 
-import graph.Camera;
-import utils.Drawable;
-import utils.Objects2D.Point2D;
 import utils.Throwables.ImpossibleLineException;
 
-import java.awt.*;
 import java.util.Optional;
 
-public class Line3D implements Drawable {
+public class Line3D{
 
     public final Point3D point;
     public final Vector3D vector;
@@ -32,27 +28,17 @@ public class Line3D implements Drawable {
     }
 
     public Optional<Point3D> getIntersection(Line3D l) {
-        Vector3D numerator = new Vector3D(point, l.point),
-                denominator = vector.subtract(l.vector);
 
-        Double t1 = denominator.x != 0 ? numerator.x / denominator.x : null,
-                t2 = denominator.y != 0 ? numerator.y / denominator.y : null,
-                t3 = denominator.z != 0 ? numerator.z / denominator.z : null;
-        boolean possible = t1 == null || t2 == null || utils.Math.destroyMinusZeros(t2 - t1) == 0;
-        possible = possible && (t1 == null || t3 == null || utils.Math.destroyMinusZeros(t3-t1) == 0);
-        possible = possible && (t3 == null || t2 == null || utils.Math.destroyMinusZeros(t2-t3) == 0);
-        if (possible && (t1 != null || t2 != null || t3 != null)){
-            return Optional.of(vector.multiply(t1 != null ? t1 : (t2 != null ? t2 : t3)).addToPoint(point));
+        double t2;
+        if(vector.y*l.vector.x-vector.x*l.vector.y != 0){
+            t2 = (vector.x*(l.point.y-point.y)-vector.y*(l.point.x-point.x))/(vector.y*l.vector.x-vector.x*l.vector.y);
+        }else if(vector.z*l.vector.x-vector.x*l.vector.z != 0){
+            t2 = (vector.x*(l.point.z-point.z)-vector.z*(l.point.x-point.x))/(vector.z*l.vector.x-vector.x*l.vector.z);
+        }else if(vector.y*l.vector.z-vector.z*l.vector.y != 0){
+            t2 = (vector.z*(l.point.y-point.y)-vector.y*(l.point.z-point.z))/(vector.y*l.vector.z-vector.z*l.vector.y);
+        }else{
+            return Optional.empty();
         }
-        return Optional.empty();
-    }
-
-    @Override
-    public void draw(Graphics g, Camera camera) {
-        Optional<Point2D> a2 = camera.project(vector.multiply(-10).addToPoint(point)), b2 = camera.project(vector.multiply(10).addToPoint(point));
-        if(a2.isPresent() && b2.isPresent()) {
-            Point2D a = a2.get(), b = b2.get();
-            g.drawLine((int) a.x, (int) a.y, (int) b.x, (int) b.y);
-        }
+        return Optional.of(l.vector.multiply(t2).addToPoint(l.point));
     }
 }

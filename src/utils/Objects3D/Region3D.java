@@ -1,8 +1,5 @@
 package utils.Objects3D;
 
-import utils.Objects3D.Object3D;
-import utils.Objects3D.Point3D;
-
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 

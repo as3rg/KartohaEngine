@@ -68,7 +68,7 @@ public class SearchTree3D {
                 || o.getLowPoint().z > high.z){
             return;
         }
-        count--;
+        count = max(0, count-1);
 
         if(isLeaf){
             objects.remove(o);

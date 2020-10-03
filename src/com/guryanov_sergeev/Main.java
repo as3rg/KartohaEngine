@@ -63,8 +63,16 @@ public class Main {
 
         canvas.getDrawables().add(p1);
         canvas.getDrawables().add(p2);
-        Optional<Line3D> line = p1.getPlane().getIntersection(p2.getPlane());
-        line.ifPresent(line3D -> canvas.getDrawables().add(line3D));
+//        Optional<Line3D> line = p1.getPlane().getIntersection(p2.getPlane());
+//        line.ifPresent(line3D -> {
+//            canvas.getDrawables().add(line3D);
+//            Optional<Point3D> p = new Line3D(p1.a1, p1.a2).getIntersection(line.get());
+//            p.ifPresent(point3D -> canvas.getDrawables().add(point3D));
+//            p = new Line3D(p1.a1, p1.a3).getIntersection(line.get());
+//            p.ifPresent(point3D -> canvas.getDrawables().add(point3D));
+//            p = new Line3D(p1.a3, p1.a2).getIntersection(line.get());
+//            p.ifPresent(point3D -> canvas.getDrawables().add(point3D));
+//        });
 
         JFrame frame = new JFrame();
 
