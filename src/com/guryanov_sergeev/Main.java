@@ -3,10 +3,7 @@ package com.guryanov_sergeev;
 import graph.Camera;
 import graph.PaintersAlgorithmCanvas;
 import utils.*;
-import utils.Objects3D.Plane3D;
-import utils.Objects3D.Point3D;
-import utils.Objects3D.Polygon3D;
-import utils.Objects3D.Vector3D;
+import utils.Objects3D.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -55,11 +52,19 @@ public class Main {
 //        canvas.getDrawables().add(new Polygon3D(A2, B2, C2, Color.LIGHT_GRAY));
 //        canvas.getDrawables().add(new Polygon3D(new Point3D(0,0,0), new Point3D(0,0,50), new Point3D(0,50,50), Color.LIGHT_GRAY));
 
-        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 15));
-        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 15));
-        canvas.getDrawables().addAll(drawSphere(0, 0,350, 75, 15));
-        canvas.getDrawables().addAll(drawCylinder(0, 0,-50, 75, 400, 5));
+//        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 15));
+//        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 15));
+//        canvas.getDrawables().addAll(drawSphere(0, 0,350, 75, 15));
+//        canvas.getDrawables().addAll(drawCylinder(0, 0,-50, 75, 400, 5));
 
+
+        Polygon3D p1 = new Polygon3D(new Point3D(-10,0,0), new Point3D(10,0,0), new Point3D(-10,0,10), Color.YELLOW);
+        Polygon3D p2 = new Polygon3D(new Point3D(-10,-10,0), new Point3D(10,10,0), new Point3D(0,-10,10), Color.YELLOW);
+
+        canvas.getDrawables().add(p1);
+        canvas.getDrawables().add(p2);
+        Optional<Line3D> line = p1.getPlane().getIntersection(p2.getPlane());
+        line.ifPresent(line3D -> canvas.getDrawables().add(line3D));
 
         JFrame frame = new JFrame();
 

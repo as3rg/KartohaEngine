@@ -1,13 +1,12 @@
 package graph;
 
-import com.sun.istack.internal.Nullable;
 import javafx.util.Pair;
-import utils.*;
 import utils.Objects2D.Point2D;
 import utils.Objects2D.Polygon2D;
 import utils.Objects3D.*;
+import utils.Triplet;
 
-import java.lang.Math;
+import java.util.Optional;
 
 public class Camera {
     public Resolution getResolution() {
@@ -25,8 +24,10 @@ public class Camera {
     }
 
     public void setRotateAngle(double rotate) {
-        this.rotate = rotate;
-        calculateBasises();
+        synchronized (this) {
+            this.rotate = rotate;
+            calculateBasises();
+        }
     }
 
     public Plane3D getScreen() {
@@ -34,8 +35,10 @@ public class Camera {
     }
 
     public void setScreen(Plane3D screen) {
-        this.screen = screen;
-        calculateBasises();
+        synchronized (this) {
+            this.screen = screen;
+            calculateBasises();
+        }
     }
 
     public static class Resolution{
@@ -46,7 +49,6 @@ public class Camera {
             this.width = width;
         }
     }
-    static class UndefinedVectorOfView extends RuntimeException{}
 
     private Plane3D screen;
     private Resolution res;
@@ -54,15 +56,13 @@ public class Camera {
 
     public Camera(Plane3D screen, Resolution resolution, double rotate) {
         this.screen = screen;
-        if(screen.vector.x == 0 && screen.vector.y == 0)
-            throw new UndefinedVectorOfView();
         this.res = resolution;
         this.rotate = -rotate;
         calculateBasises();
     }
 
     public Pair<Vector3D, Vector3D> getBasises(double w, double h){
-        return new Pair<>(new Vector3D(w*bW.x,w*bW.y,w*bW.z),new Vector3D(h*bH.x,h*bH.y,h*bH.z));
+        return new Pair<>(bW.multiply(w),bH.multiply(h));
     }
 
     Vector3D bW, bH;
@@ -97,7 +97,7 @@ public class Camera {
         double xW = screen.vector.x + bW.x,
                 yW = screen.vector.y + bW.y,
                 zW = screen.vector.z + bW.z,
-                n = Math.sqrt(Math.pow(screen.vector.x, 2)+Math.pow(screen.vector.y, 2)+Math.pow(screen.vector.z, 2));
+                n = screen.vector.getLength();
         Point3D zero = new Point3D(0,0,0);
         Plane3D plane3D = new Plane3D(zero, screen.vector.addToPoint(zero), new Point3D(xW, yW, zW));
         double x = plane3D.vector.x, y = plane3D.vector.y, z = plane3D.vector.z;
@@ -221,7 +221,7 @@ public class Camera {
         double xH = screen.vector.x + bH.x,
                 yH = screen.vector.y + bH.y,
                 zH = screen.vector.z + bH.z,
-                n = Math.sqrt(Math.pow(screen.vector.x, 2)+Math.pow(screen.vector.y, 2)+Math.pow(screen.vector.z, 2));
+                n = screen.vector.getLength();
         Point3D zero = new Point3D(0,0,0);
         Plane3D plane3D = new Plane3D(zero, screen.vector.addToPoint(zero), new Point3D(xH, yH, zH));
         double x = plane3D.vector.x, y = plane3D.vector.y, z = plane3D.vector.z;
@@ -344,18 +344,19 @@ public class Camera {
         mR = basises.getKey();
         mT = basises.getValue();
 
-        double n = Math.sqrt(Math.pow(screen.vector.x, 2)+Math.pow(screen.vector.y, 2)+Math.pow(screen.vector.z, 2));
-        mF = new Vector3D(screen.vector.x*f/n, screen.vector.y*f/n, screen.vector.z*f/n);
+        double n = screen.vector.getLength();
+        mF = screen.vector.multiply(f/n);
 
         return new Triplet<>(mF, mR, mT);
     }
 
-    @Nullable
-    public Point2D project(Point3D point3D){
-        Point3D projection = screen.getIntersection(new Line3D(screen.point, point3D));
-        if (projection == null)
-            return null;
-        Point3D smm = new Point3D(screen.point.x+screen.vector.x, screen.point.y+screen.vector.y,screen.point.z+screen.vector.z);
+
+    public Optional<Point2D> project(Point3D point3D){
+        Optional<Point3D> projectionO = screen.getIntersection(new Line3D(screen.point, point3D));
+        if (!projectionO.isPresent())
+            return Optional.empty();
+        Point3D projection = projectionO.get();
+        Point3D smm = screen.vector.addToPoint(screen.point);
         Pair<Vector3D, Vector3D> basises = getBasises(res.width/2, res.height/2);
         Vector3D bW = basises.getKey(),
                 bH = basises.getValue();
@@ -407,18 +408,15 @@ public class Camera {
             }
         }
         assert roH != null && roW != null;
-        double cos = 1,// utils.Math.destroyMinusZeros(Math.cos(-rotate)),
-                sin = 0;//utils.Math.destroyMinusZeros(Math.sin(-rotate));
-        return new Point2D(roW*res.width*cos-roH*res.height*sin + res.width/2, -roW*res.width*sin-roH*res.height*cos + res.height/2);
+        return Optional.of(new Point2D(roW*res.width + res.width/2, -roH*res.height + res.height/2));
     }
 
-    @Nullable
-    public Polygon2D project(Polygon3D poly){
-        Point2D a = project(poly.a1),
+    public Optional<Polygon2D> project(Polygon3D poly){
+        Optional<Point2D> a = project(poly.a1),
                 b = project(poly.a2),
                 c = project(poly.a3);
-        if (a == null || b == null || c == null)
-            return null;
-        return new Polygon2D(a,b,c, poly.color);
+        if (!a.isPresent() || !b.isPresent() || !c.isPresent())
+            return Optional.empty();
+        return Optional.of(new Polygon2D(a.get(),b.get(),c.get(), poly.color));
     }
 }
