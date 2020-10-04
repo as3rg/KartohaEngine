@@ -1,9 +1,8 @@
 package graph;
 
-import utils.Drawable;
-import utils.Objects3D.Plane3D;
-import utils.Objects3D.Point3D;
-import utils.Objects3D.Vector3D;
+import geometry.objects3D.Plane3D;
+import geometry.objects3D.Point3D;
+import geometry.objects3D.Vector3D;
 
 import javax.swing.*;
 import java.awt.*;
@@ -149,7 +148,7 @@ public class PaintersAlgorithmCanvas extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
-                    Vector3D rR = camera.getRightRotatedVectors(-rotateStep);
+                    Vector3D rR = camera.getRightRotatedVectors(2*Math.PI-rotateStep);
                     camera.setScreen(new Plane3D(rR, camera.getScreen().point));
                     repaint();
                 }

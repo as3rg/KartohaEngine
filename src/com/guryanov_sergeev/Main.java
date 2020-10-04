@@ -1,9 +1,9 @@
 package com.guryanov_sergeev;
 
 import graph.Camera;
+import graph.Drawable;
 import graph.PaintersAlgorithmCanvas;
-import utils.*;
-import utils.Objects3D.*;
+import geometry.objects3D.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -110,7 +110,7 @@ public class Main {
         for (int j = 0; j < 360; j+= step) {
             List<Point3D> B = new ArrayList<>();
             for (int i = 0; i < 360; i += step) {
-                B.add(new Point3D(x+R * utils.Math.destroyMinusZeros(Math.sin(j * Math.PI / 180)) * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), y+R * utils.Math.destroyMinusZeros(Math.sin(j * Math.PI / 180)) * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), z+R * utils.Math.destroyMinusZeros(Math.cos(j * Math.PI / 180))));
+                B.add(new Point3D(x+R * utils.Math.roundNearZero(Math.sin(j * Math.PI / 180)) * utils.Math.roundNearZero(Math.cos(i * Math.PI / 180)), y+R * utils.Math.roundNearZero(Math.sin(j * Math.PI / 180)) * utils.Math.roundNearZero(Math.sin(i * Math.PI / 180)), z+R * utils.Math.roundNearZero(Math.cos(j * Math.PI / 180))));
             }
             C.add(B);
         }
@@ -134,8 +134,8 @@ public class Main {
         Set<Drawable> drawableSet = new HashSet<>();
         java.util.List<Point3D> A = new ArrayList<>(),B = new ArrayList<>();
         for (int i = 0; i < 360; i += step) {
-            A.add(new Point3D(x+R  * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), y+R * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), z));
-            B.add(new Point3D(x+R  * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), y+R * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), z+h));
+            A.add(new Point3D(x+R  * utils.Math.roundNearZero(Math.cos(i * Math.PI / 180)), y+R * utils.Math.roundNearZero(Math.sin(i * Math.PI / 180)), z));
+            B.add(new Point3D(x+R  * utils.Math.roundNearZero(Math.cos(i * Math.PI / 180)), y+R * utils.Math.roundNearZero(Math.sin(i * Math.PI / 180)), z+h));
         }
         System.out.println(2*360/step+" points");
         Random r = new Random();

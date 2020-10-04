@@ -1,6 +1,6 @@
-package utils.Objects3D;
+package geometry.objects3D;
 
-import utils.Throwables.ImpossibleVectorException;
+import utils.throwables.ImpossibleVectorException;
 
 public class Vector3D {
     public final double x,y,z;
@@ -38,5 +38,9 @@ public class Vector3D {
 
     public double getLength(){
         return Math.sqrt(x*x+y*y+z*z);
+    }
+
+    public double scalarProduct(Vector3D v){
+        return x*v.x+y*v.y+z*v.z;
     }
 }

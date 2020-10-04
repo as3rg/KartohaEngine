@@ -1,7 +1,7 @@
-package utils.Objects2D;
+package geometry.objects2D;
 
 import graph.Camera;
-import utils.Drawable;
+import graph.Drawable;
 
 import java.awt.*;
 

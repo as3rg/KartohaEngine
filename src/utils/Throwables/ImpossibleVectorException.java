@@ -1,3 +1,3 @@
-package utils.Throwables;
+package utils.throwables;
 
 public class ImpossibleVectorException extends RuntimeException {}

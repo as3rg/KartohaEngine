@@ -1,6 +1,6 @@
-package utils.Objects3D;
+package geometry.objects3D;
 
-import utils.Throwables.ImpossibleLineException;
+import utils.throwables.ImpossibleLineException;
 
 import java.util.Optional;
 

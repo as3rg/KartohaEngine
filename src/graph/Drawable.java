@@ -1,6 +1,4 @@
-package utils;
-
-import graph.Camera;
+package graph;
 
 import java.awt.*;
 

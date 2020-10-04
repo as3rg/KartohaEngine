@@ -1,6 +1,6 @@
-package utils.Objects3D;
+package geometry.objects3D;
 
-import utils.Throwables.ImpossiblePlaneException;
+import utils.throwables.ImpossiblePlaneException;
 
 import java.util.Optional;
 
@@ -30,8 +30,8 @@ public class Plane3D {
     }
 
     public Optional<Point3D> getIntersection(Line3D l){
-        if (vector.x*l.vector.x + vector.y*l.vector.y + vector.z*l.vector.z == 0) return Optional.empty();
-        double t = (vector.x*vector.x + vector.y*vector.y + vector.z*vector.z)/(vector.x*l.vector.x + vector.y*l.vector.y + vector.z*l.vector.z);
+        if (vector.scalarProduct(l.vector) == 0) return Optional.empty();
+        double t = vector.scalarProduct(vector)/vector.scalarProduct(l.vector);
         return Optional.of(new Point3D(l.vector.x*t+l.point.x, l.vector.y*t+l.point.y, l.vector.z*t+l.point.z));
     }
 

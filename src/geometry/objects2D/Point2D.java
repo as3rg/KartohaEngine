@@ -1,4 +1,4 @@
-package utils.Objects2D;
+package geometry.objects2D;
 
 public class Point2D {
     public final double x, y;

@@ -1,4 +1,4 @@
-package utils.Objects3D;
+package geometry.objects3D;
 
 public class Point3D{
     public final double x, y, z;
