@@ -1,6 +1,6 @@
 package graph;
 
-import geometry.objects3D.Plane3D;
+import geometry.objects3D.Screen;
 import geometry.objects3D.Point3D;
 import geometry.objects3D.Vector3D;
 
@@ -27,9 +27,9 @@ public class PaintersAlgorithmCanvas extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     Vector3D mU = camera.getMovingBasises(step, step, step).third;
-                    Point3D focus = camera.getScreen().point;
+                    Point3D focus = camera.getScreen().focus;
 
-                    camera.setScreen(new Plane3D(camera.getScreen().vector, mU.addToPoint(focus)));
+                    camera.setScreen(new Screen(camera.getScreen().vector, mU.addToPoint(focus)));
                     repaint();
                 }
             }
@@ -43,9 +43,9 @@ public class PaintersAlgorithmCanvas extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     Vector3D mU = camera.getMovingBasises(step, step, step).third;
-                    Point3D focus = camera.getScreen().point;
+                    Point3D focus = camera.getScreen().focus;
 
-                    camera.setScreen(new Plane3D(camera.getScreen().vector, mU.multiply(-1).addToPoint(focus)));
+                    camera.setScreen(new Screen(camera.getScreen().vector, mU.multiply(-1).addToPoint(focus)));
                     repaint();
                 }
             }
@@ -59,9 +59,9 @@ public class PaintersAlgorithmCanvas extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     Vector3D mR = camera.getMovingBasises(step, step, step).second;
-                    Point3D focus = camera.getScreen().point;
+                    Point3D focus = camera.getScreen().focus;
 
-                    camera.setScreen(new Plane3D(camera.getScreen().vector, mR.multiply(-1).addToPoint(focus)));
+                    camera.setScreen(new Screen(camera.getScreen().vector, mR.multiply(-1).addToPoint(focus)));
                     repaint();
                 }
             }
@@ -75,9 +75,9 @@ public class PaintersAlgorithmCanvas extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     Vector3D mR = camera.getMovingBasises(step, step, step).second;
-                    Point3D focus = camera.getScreen().point;
+                    Point3D focus = camera.getScreen().focus;
 
-                    camera.setScreen(new Plane3D(camera.getScreen().vector, mR.addToPoint(focus)));
+                    camera.setScreen(new Screen(camera.getScreen().vector, mR.addToPoint(focus)));
                     repaint();
                 }
             }
@@ -91,9 +91,9 @@ public class PaintersAlgorithmCanvas extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     Vector3D mF = camera.getMovingBasises(step, step, step).first;
-                    Point3D focus = camera.getScreen().point;
+                    Point3D focus = camera.getScreen().focus;
 
-                    camera.setScreen(new Plane3D(camera.getScreen().vector, mF.addToPoint(focus)));
+                    camera.setScreen(new Screen(camera.getScreen().vector, mF.addToPoint(focus)));
                     repaint();
                 }
             }
@@ -107,9 +107,9 @@ public class PaintersAlgorithmCanvas extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     Vector3D mF = camera.getMovingBasises(step, step, step).first;
-                    Point3D focus = camera.getScreen().point;
+                    Point3D focus = camera.getScreen().focus;
 
-                    camera.setScreen(new Plane3D(camera.getScreen().vector, mF.multiply(-1).addToPoint(focus)));
+                    camera.setScreen(new Screen(camera.getScreen().vector, mF.multiply(-1).addToPoint(focus)));
                     repaint();
                 }
             }
@@ -149,7 +149,7 @@ public class PaintersAlgorithmCanvas extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     Vector3D rR = camera.getRightRotatedVectors(2*Math.PI-rotateStep);
-                    camera.setScreen(new Plane3D(rR, camera.getScreen().point));
+                    camera.setScreen(new Screen(rR, camera.getScreen().focus));
                     repaint();
                 }
             }
@@ -163,7 +163,7 @@ public class PaintersAlgorithmCanvas extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     Vector3D rR = camera.getRightRotatedVectors(rotateStep);
-                    camera.setScreen(new Plane3D(rR, camera.getScreen().point));
+                    camera.setScreen(new Screen(rR, camera.getScreen().focus));
                     repaint();
                 }
             }
@@ -177,7 +177,7 @@ public class PaintersAlgorithmCanvas extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     Vector3D rT = camera.getTopRotatedVectors(-rotateStep);
-                    camera.setScreen(new Plane3D(rT, camera.getScreen().point));
+                    camera.setScreen(new Screen(rT, camera.getScreen().focus));
                     repaint();
                 }
             }
@@ -191,7 +191,7 @@ public class PaintersAlgorithmCanvas extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     Vector3D rT = camera.getTopRotatedVectors(rotateStep);
-                    camera.setScreen(new Plane3D(rT, camera.getScreen().point));
+                    camera.setScreen(new Screen(rT, camera.getScreen().focus));
                     repaint();
                 }
             }

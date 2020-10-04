@@ -1,11 +1,8 @@
 package graph;
 
+import geometry.objects3D.*;
 import javafx.util.Pair;
 import geometry.objects2D.Point2D;
-import geometry.objects3D.Line3D;
-import geometry.objects3D.Plane3D;
-import geometry.objects3D.Point3D;
-import geometry.objects3D.Vector3D;
 import utils.Triplet;
 
 import java.util.Optional;
@@ -21,12 +18,12 @@ public class Camera {
         }
     }
 
-    private Plane3D screen;
+    private Screen screen;
     private Resolution res;
     private double rotate;
     private Vector3D bW, bH;
 
-    public Camera(Plane3D screen, Resolution resolution, double rotate) {
+    public Camera(Screen screen, Resolution resolution, double rotate) {
         this.screen = screen;
         this.res = resolution;
         this.rotate = -rotate;
@@ -206,11 +203,11 @@ public class Camera {
     }
     
     public Optional<Point2D> project(Point3D point3D){
-        Optional<Point3D> projectionO = screen.getIntersection(new Line3D(screen.point, point3D));
+        Optional<Point3D> projectionO = screen.getIntersection(new Line3D(screen.focus, point3D));
         if (!projectionO.isPresent())
             return Optional.empty();
         Point3D projection = projectionO.get();
-        Point3D smm = screen.vector.addToPoint(screen.point);
+        Point3D smm = screen.vector.addToPoint(screen.focus);
         Pair<Vector3D, Vector3D> basises = getBasises(res.width/2, res.height/2);
         Vector3D bW = basises.getKey(),
                 bH = basises.getValue();
@@ -286,11 +283,11 @@ public class Camera {
         }
     }
 
-    public Plane3D getScreen() {
+    public Screen getScreen() {
         return screen;
     }
 
-    public void setScreen(Plane3D screen) {
+    public void setScreen(Screen screen) {
         synchronized (this) {
             this.screen = screen;
             calculateBasises();

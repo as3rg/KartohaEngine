@@ -18,7 +18,7 @@ public class Main {
     public static void main(String[] args) {
         int angle = 45;
         Camera.Resolution resolution = new Camera.Resolution(1280, 720);
-        Camera camera = new Camera(new Plane3D(new Vector3D(FocusLength,0,0), new Point3D(-Distance,-Distance,100)), resolution, 0);
+        Camera camera = new Camera(new Screen(new Vector3D(FocusLength,0,0), new Point3D(-Distance,-Distance,100)), resolution, 0);
         PaintersAlgorithmCanvas canvas = new PaintersAlgorithmCanvas(camera);
 
         //Куб
@@ -62,7 +62,7 @@ public class Main {
         Polygon3D p2 = new Polygon3D(new Point3D(-10,-10,0), new Point3D(10,10,0), new Point3D(0,-10,10), Color.YELLOW);
 
         canvas.getDrawables().add(p1);
-        canvas.getDrawables().add(p2);
+        canvas.getDrawables().addAll(p2.split(p1));
 //        Optional<Line3D> line = p1.getPlane().getIntersection(p2.getPlane());
 //        line.ifPresent(line3D -> {
 //            canvas.getDrawables().add(line3D);
