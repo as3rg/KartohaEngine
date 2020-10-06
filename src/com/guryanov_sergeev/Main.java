@@ -4,6 +4,7 @@ import graph.Camera;
 import graph.Drawable;
 import graph.PaintersAlgorithmCanvas;
 import geometry.objects3D.*;
+import graph.Screen;
 import utils.throwables.ImpossiblePolygonException;
 
 import javax.swing.*;
@@ -40,20 +41,18 @@ public class Main {
         canvas.getDrawables().add(new Polygon3D(A, B, B2, Color.GREEN));
         canvas.getDrawables().add(new Polygon3D(A, A2, B2, Color.GREEN));
 
-//        canvas.getDrawables().add(new Polygon3D(D, B, B2, Color.BLUE));
-//        canvas.getDrawables().add(new Polygon3D(D, B2, D2, Color.BLUE));
-//        canvas.getDrawables().add(new Polygon3D(B, B2, D2, Color.BLUE));
+        canvas.getDrawables().add(new Polygon3D(D, D2, C2, Color.BLUE));
+        canvas.getDrawables().add(new Polygon3D(D, C, C2, Color.BLUE));
 
-//        canvas.getDrawables().add(new Polygon3D(D, D2, C2, Color.YELLOW));
-//        canvas.getDrawables().add(new Polygon3D(D2, D, C, Color.YELLOW));
-//
-//        canvas.getDrawables().add(new Polygon3D(A, A2, C, Color.ORANGE));
-//        canvas.getDrawables().add(new Polygon3D(A, C, C2, Color.ORANGE));
+        canvas.getDrawables().add(new Polygon3D(D, A, A2, Color.YELLOW));
+        canvas.getDrawables().add(new Polygon3D(D, D2, A2, Color.YELLOW));
+        canvas.getDrawables().add(new Polygon3D(B, B2, C2, Color.ORANGE));
+        canvas.getDrawables().add(new Polygon3D(B, C, C2, Color.ORANGE));
 //
 //        canvas.getDrawables().add(new Polygon3D(A2, B2, C2, Color.LIGHT_GRAY));
 //        canvas.getDrawables().add(new Polygon3D(new Point3D(0,0,0), new Point3D(0,0,50), new Point3D(0,50,50), Color.LIGHT_GRAY));
 
-//        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 15));
+//        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 120));
 //        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 15));
 //        canvas.getDrawables().addAll(drawSphere(0, 0,350, 75, 15));
 //        canvas.getDrawables().addAll(drawCylinder(0, 0,-50, 75, 400, 5));
@@ -92,9 +91,9 @@ public class Main {
 //                canvas.getPolygons().add(new Polygon3D(new Point3D(0,0,0), new Point3D(0,0,50), new Point3D(50*utils.Math.destroyMinusZeros(Math.cos(2*i * Math.PI / 180)),50*utils.Math.destroyMinusZeros(Math.sin(2*i * Math.PI / 180)),50), Color.LIGHT_GRAY));
 //                camera.setFocus(new Point3D(-Distance * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), -Distance * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), 100));
 //                camera.setVector(new Vector3D(FocusLength * utils.Math.destroyMinusZeros(Math.cos(i * Math.PI / 180)), FocusLength * utils.Math.destroyMinusZeros(Math.sin(i * Math.PI / 180)), -150));
-//                System.out.println(i);
+//                //System.out.println(i);
 //                camera.setRotateAngle(Math.PI * i / 180);
-//                System.out.printf("%.2f %.2f\n",FocusLength * utils.Math.destroyMinusZeros(java.lang.Math.cos(2*i * java.lang.Math.PI / 180)), FocusLength * utils.Math.destroyMinusZeros(java.lang.Math.sin(2*i * java.lang.Math.PI / 180)));
+//                //System.out.printf("%.2f %.2f\n",FocusLength * utils.Math.destroyMinusZeros(java.lang.Math.cos(2*i * java.lang.Math.PI / 180)), FocusLength * utils.Math.destroyMinusZeros(java.lang.Math.sin(2*i * java.lang.Math.PI / 180)));
 //                canvas.repaint();
 //                try {
 //                    Thread.sleep(10);
@@ -115,7 +114,7 @@ public class Main {
             }
             C.add(B);
         }
-        System.out.println(360*360/step/step+" points");
+        //System.out.println(360*360/step/step+" points");
         Random r = new Random();
         for(int j = 0; j < 360/step -1; j++) {
             List<Point3D> A = C.get(j), B = C.get(j+1);
@@ -129,7 +128,7 @@ public class Main {
                 }
             }
         }
-        System.out.println(2*360*360/step/step+" polygons");
+        //System.out.println(2*360*360/step/step+" polygons");
         return drawableSet;
     }
 
@@ -142,14 +141,14 @@ public class Main {
             A.add(new Point3D(x+R  * utils.Math.roundNearZero(Math.cos(i * Math.PI / 180)), y+R * utils.Math.roundNearZero(Math.sin(i * Math.PI / 180)), z));
             B.add(new Point3D(x+R  * utils.Math.roundNearZero(Math.cos(i * Math.PI / 180)), y+R * utils.Math.roundNearZero(Math.sin(i * Math.PI / 180)), z+h));
         }
-        System.out.println(2*360/step+" points");
+        //System.out.println(2*360/step+" points");
         Random r = new Random();
         for (int i = 0; i < 360/step; i += 1) {
             Color c = new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256), r.nextInt(256));
             drawableSet.add(new Polygon3D(A.get(i), B.get(i), A.get((i + 1) % (360/step)), c));
             drawableSet.add(new Polygon3D(A.get(i), B.get(i), B.get((i + 1) % (360/step)), c));
         }
-        System.out.println(drawableSet.size()+" polygons");
+        //System.out.println(drawableSet.size()+" polygons");
         return drawableSet;
     }
 }

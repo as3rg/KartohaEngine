@@ -11,6 +11,8 @@ import static java.lang.Math.min;
 
 public class SearchTree3D<T extends Object3D> {
 
+    public static double LIMIT_VOLUME = 1000000;
+
     public SearchTree3D(Point3D a, Point3D b){
         region = new Region3D(new Point3D(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z)), new Point3D(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z)));
 
@@ -39,7 +41,7 @@ public class SearchTree3D<T extends Object3D> {
 
         region = new Region3D(new Point3D(minX, minY, minZ), new Point3D(maxX, maxY, maxZ));
 
-        if((maxX-minX)*(maxY-minY)*(maxZ-minZ) <= 0.25){
+        if((maxX-minX)*(maxY-minY)*(maxZ-minZ) <= LIMIT_VOLUME){
             isLeaf = true;
             isInited = true;
         }else {

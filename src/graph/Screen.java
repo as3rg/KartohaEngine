@@ -1,4 +1,8 @@
-package geometry.objects3D;
+package graph;
+
+import geometry.objects3D.Plane3D;
+import geometry.objects3D.Point3D;
+import geometry.objects3D.Vector3D;
 
 public class Screen extends Plane3D {
 

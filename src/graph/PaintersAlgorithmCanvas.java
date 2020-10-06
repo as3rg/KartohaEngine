@@ -7,7 +7,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -267,8 +266,8 @@ public class PaintersAlgorithmCanvas extends JPanel {
             g.dispose();
             ((Graphics2D) g2).drawImage(bufferedImage, null, 0, 0);
             drawingTime += System.nanoTime() - startDrawing;
-            System.out.println("Calculating: " + calculatingTime);
-            System.out.println("Drawing: " + drawingTime);
+            //System.out.println("Calculating: " + calculatingTime);
+            //System.out.println("Drawing: " + drawingTime);
         }
     }
 
