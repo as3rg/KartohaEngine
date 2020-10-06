@@ -23,6 +23,13 @@ public class Line3D{
             throw new ImpossibleLineException();
     }
 
+    public Line3D(Segment3D s){
+        this.point = s.a1;
+        this.vector = new Vector3D(s.a1, s.a2);
+        if(vector.getLength() == 0)
+            throw new ImpossibleLineException();
+    }
+
     public Optional<Point3D> getIntersection(Plane3D p) {
         return p.getIntersection(this);
     }

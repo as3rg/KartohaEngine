@@ -1,16 +1,16 @@
 package graph;
 
-import geometry.objects3D.Screen;
-import geometry.objects3D.Point3D;
-import geometry.objects3D.Vector3D;
+import geometry.objects3D.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class PaintersAlgorithmCanvas extends JPanel {
     public PaintersAlgorithmCanvas(Camera camera){
@@ -240,14 +240,35 @@ public class PaintersAlgorithmCanvas extends JPanel {
             g.clearRect(0, 0, (int) camera.getResolution().width, (int) camera.getResolution().height);
             drawingTime += System.nanoTime() - startDrawing;
 
+            SearchTree3D<Drawable> st = new SearchTree3D<>(drawables);
+
+            long startCalculating = System.nanoTime();
             for (Drawable drawable : drawables) {
-                drawable.draw(g, camera);
+                for(Drawable drawable2 : st.get(drawable.getRegion())){
+                    if(drawable.equals(drawable2)) continue;
+                    st.remove(drawable2);
+                    st.addAll(drawable2.split(drawable));
+                }
             }
 
+            Set<Drawable> drawables = new TreeSet<>(((o1, o2) -> {
+                int res = o1.compareZ(camera, o2);
+                if (res == 0) return Integer.compare(o1.hashCode(), o2.hashCode());
+                return -res;
+            }));
+            drawables.addAll(st.get(st.getRegion()));
+
+            calculatingTime = System.nanoTime() - startCalculating;
+
             startDrawing = System.nanoTime();
+            for(Drawable d : drawables){
+                d.draw(g, camera);
+            }
             g.dispose();
             ((Graphics2D) g2).drawImage(bufferedImage, null, 0, 0);
             drawingTime += System.nanoTime() - startDrawing;
+            System.out.println("Calculating: " + calculatingTime);
+            System.out.println("Drawing: " + drawingTime);
         }
     }
 

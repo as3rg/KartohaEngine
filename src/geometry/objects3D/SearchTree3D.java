@@ -9,9 +9,9 @@ import java.util.Set;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class SearchTree3D {
+public class SearchTree3D<T extends Object3D> {
 
-    SearchTree3D(Point3D a, Point3D b){
+    public SearchTree3D(Point3D a, Point3D b){
         region = new Region3D(new Point3D(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z)), new Point3D(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z)));
 
         Point3D high = region.high, low = region.low;
@@ -24,10 +24,10 @@ public class SearchTree3D {
         }
     }
 
-    SearchTree3D(Collection<Object3D> collection){
+    public SearchTree3D(Collection<T> collection){
         double minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
 
-        for(Object3D object3D : collection){
+        for(T object3D : collection){
             minX = min(minX, object3D.getRegion().low.x);
             minY = min(minY, object3D.getRegion().low.y);
             minZ = min(minZ, object3D.getRegion().low.z);
@@ -47,7 +47,7 @@ public class SearchTree3D {
             isInited = false;
         }
 
-        for(Object3D object3D : collection){
+        for(T object3D : collection){
             add(object3D);
         }
     }
@@ -56,10 +56,16 @@ public class SearchTree3D {
     private int count = 0;
     private final boolean isLeaf;
     private boolean isInited;
-    private final Set<Object3D> objects = new HashSet<>();
-    private @Nullable SearchTree3D lll, llh, lhl, lhh, hll, hlh, hhl, hhh;
+    private final Set<T> objects = new HashSet<>();
+    private @Nullable SearchTree3D<T> lll, llh, lhl, lhh, hll, hlh, hhl, hhh;
 
-    public void add(Object3D o){
+    public void addAll(Collection<T> o){
+        for(T t : o){
+            add(t);
+        }
+    }
+
+    public void add(T o){
         if (!region.crosses(o.getRegion())){
             return;
         }
@@ -80,7 +86,13 @@ public class SearchTree3D {
         }
     }
 
-    public void remove(Object3D o){
+    public void removeAll(Collection<T> o){
+        for(T t : o){
+            remove(t);
+        }
+    }
+
+    public void remove(T o){
         if (!region.crosses(o.getRegion())){
             return;
         }
@@ -106,13 +118,13 @@ public class SearchTree3D {
         return count;
     }
 
-    public Set<Object3D> get(Region3D r) {
+    public Set<T> get(Region3D r) {
         if (!region.crosses(r) || !isInited) {
             return new HashSet<>();
         }
         if(isLeaf){
-            Set<Object3D> res = new HashSet<>();
-            for (Object3D o : objects){
+            Set<T> res = new HashSet<>();
+            for (T o : objects){
                 if (r.crosses(o)){
                     res.add(o);
                 }
@@ -120,7 +132,7 @@ public class SearchTree3D {
             return res;
         }
 
-        Set<Object3D> res = new HashSet<>();
+        Set<T> res = new HashSet<>();
         res.addAll(lll.get(r));
         res.addAll(llh.get(r));
         res.addAll(lhl.get(r));
@@ -139,15 +151,19 @@ public class SearchTree3D {
         Point3D high = region.high,
                 low = region.low,
                 center = new Point3D((low.x + high.x) / 2.0, (low.y + high.y) / 2.0, (low.z + high.z) / 2.0);
-        lll = new SearchTree3D(low, center);
-        hhh = new SearchTree3D(center, high);
-        llh = new SearchTree3D(new Point3D(low.x, low.y, high.z), center);
-        lhl = new SearchTree3D(new Point3D(low.x, high.y, low.z), center);
-        lhh = new SearchTree3D(new Point3D(low.x, high.y, high.z), center);
-        hll = new SearchTree3D(new Point3D(high.x, low.y, low.z), center);
-        hlh = new SearchTree3D(new Point3D(high.x, low.y, high.z), center);
-        hhl = new SearchTree3D(new Point3D(high.x, high.y, low.z), center);
+        lll = new SearchTree3D<T>(low, center);
+        hhh = new SearchTree3D<T>(center, high);
+        llh = new SearchTree3D<T>(new Point3D(low.x, low.y, high.z), center);
+        lhl = new SearchTree3D<T>(new Point3D(low.x, high.y, low.z), center);
+        lhh = new SearchTree3D<T>(new Point3D(low.x, high.y, high.z), center);
+        hll = new SearchTree3D<T>(new Point3D(high.x, low.y, low.z), center);
+        hlh = new SearchTree3D<T>(new Point3D(high.x, low.y, high.z), center);
+        hhl = new SearchTree3D<T>(new Point3D(high.x, high.y, low.z), center);
         isInited = true;
+    }
+
+    public Region3D getRegion() {
+        return region;
     }
 
     private void deinit(){

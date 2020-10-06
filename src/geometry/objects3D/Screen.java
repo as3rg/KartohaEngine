@@ -8,10 +8,4 @@ public class Screen extends Plane3D {
         super(vector, vector.addToPoint(point));
         focus = point;
     }
-
-    public Point3D getFocus(){
-        return vector.multiply(-1).addToPoint(point);
-    }
-
-
 }

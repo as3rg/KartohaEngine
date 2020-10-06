@@ -1,11 +1,11 @@
 package geometry.objects2D;
 
 import graph.Camera;
-import graph.Drawable;
 
 import java.awt.*;
+import java.util.Random;
 
-public class Polygon2D implements Drawable {
+public class Polygon2D {
     public final Point2D a1, a2, a3;
     public final Color color;
 
@@ -16,9 +16,10 @@ public class Polygon2D implements Drawable {
         this.color = color;
     }
 
-    @Override
     public void draw(Graphics g, Camera camera) {
+//        Random r = new Random();
+//        Color c = new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256), 255);
         g.setColor(color);
-        g.drawPolygon(new int[]{(int)a1.x,(int)a2.x,(int)a3.x},new int[]{(int)a1.y,(int)a2.y,(int)a3.y},3);
+        g.fillPolygon(new int[]{(int)a1.x,(int)a2.x,(int)a3.x},new int[]{(int)a1.y,(int)a2.y,(int)a3.y},3);
     }
 }
