@@ -1,6 +1,8 @@
 package graph;
 
-import geometry.objects3D.*;
+import geometry.objects3D.Point3D;
+import geometry.objects3D.SearchTree3D;
+import geometry.objects3D.Vector3D;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,10 +11,9 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
-public class PaintersAlgorithmCanvas extends JPanel {
-    public PaintersAlgorithmCanvas(Camera camera){
+public class CanvasPanel extends JPanel {
+    public CanvasPanel(Camera camera){
         this.camera = camera;
         setDoubleBuffered(false);
         this.setFocusable(true);
@@ -235,39 +236,42 @@ public class PaintersAlgorithmCanvas extends JPanel {
 
             long startDrawing = System.nanoTime();
             BufferedImage bufferedImage = new BufferedImage((int) camera.getResolution().width, (int) camera.getResolution().height, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g = bufferedImage.createGraphics();
-            g.clearRect(0, 0, (int) camera.getResolution().width, (int) camera.getResolution().height);
             drawingTime += System.nanoTime() - startDrawing;
 
-            SearchTree3D<Drawable> st = new SearchTree3D<>(drawables);
+//            SearchTree3D<Drawable> st = new SearchTree3D<>(drawables);
 
+            Canvas canvas = new Canvas(camera.getResolution());
             long startCalculating = System.nanoTime();
             for (Drawable drawable : drawables) {
-                for(Drawable drawable2 : st.get(drawable.getRegion())){
-                    if(drawable.equals(drawable2)) continue;
-                    st.remove(drawable2);
-                    st.addAll(drawable2.split(camera, drawable));
-                }
+                drawable.draw(canvas, camera);
             }
-
-            Set<Drawable> drawables = new TreeSet<>(((o1, o2) -> {
-                int res = o1.compareZ(camera, o2);
-                if (res == 0) return 1;
-                return -res;
-            }));
-            drawables.addAll(st.get(st.getRegion()));
+//            for (Drawable drawable : drawables) {
+//                for(Drawable drawable2 : st.get(drawable.getRegion())){
+//                    if(drawable.equals(drawable2)) continue;
+//                    st.remove(drawable2);
+//                    st.addAll(drawable2.split(camera, drawable));
+//                }
+//            }
+//
+//            Set<Drawable> drawables = new TreeSet<>(((o1, o2) -> {
+//                int res = o1.compareZ(camera, o2);
+//                if (res == 0) return 1;
+//                return -res;
+//            }));
+//            drawables.addAll(st.get(st.getRegion()));
 
             calculatingTime = System.nanoTime() - startCalculating;
 
             startDrawing = System.nanoTime();
-            for(Drawable d : drawables){
-                d.draw(g, camera);
+            for(int i = 0; i < canvas.getResolution().width; i++){
+                for(int j = 0; j < canvas.getResolution().height; j++){
+                    bufferedImage.setRGB(i, j,canvas.get(i, j).color.getRGB());
+                }
             }
-            g.dispose();
             ((Graphics2D) g2).drawImage(bufferedImage, null, 0, 0);
             drawingTime += System.nanoTime() - startDrawing;
-            //System.out.println("Calculating: " + calculatingTime);
-            //System.out.println("Drawing: " + drawingTime);
+//            System.out.println("Calculating: " + calculatingTime);
+//            System.out.println("Drawing: " + drawingTime);
         }
     }
 

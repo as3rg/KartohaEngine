@@ -128,7 +128,12 @@ public class Plane3D {
             y0 = -getD()/vector.y;
             kZ = 0;
         }
-        if(z0 == 0 && y0 == 0 && x0 == 0 && kX == 0 && kY == 0 && kZ == 0){
+        if(utils.Math.roundNearZero(z0) == 0
+                && utils.Math.roundNearZero(y0) == 0
+                && utils.Math.roundNearZero(x0) == 0
+                && utils.Math.roundNearZero(kX) == 0
+                && utils.Math.roundNearZero(kY) == 0
+                && utils.Math.roundNearZero(kZ) == 0){
             return Optional.empty();
         }
         return Optional.of(new Line3D(new Point3D(x0, y0, z0), new Vector3D(kX, kY, kZ)));

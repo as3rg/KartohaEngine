@@ -46,6 +46,14 @@ public class Vector3D {
         return utils.Math.roundNearZero(x*v.x+y*v.y+z*v.z);
     }
 
+    public Vector3D vectorProduct(Vector3D v){
+        double A = y*v.z-v.y*z,
+                B = v.x*z-v.z*x,
+                C = x*v.y-v.x*y;
+
+        return new Vector3D(A,B,C);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

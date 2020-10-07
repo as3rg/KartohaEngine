@@ -2,7 +2,7 @@ package com.guryanov_sergeev;
 
 import graph.Camera;
 import graph.Drawable;
-import graph.PaintersAlgorithmCanvas;
+import graph.CanvasPanel;
 import geometry.objects3D.*;
 import graph.Screen;
 import utils.throwables.ImpossiblePolygonException;
@@ -21,7 +21,7 @@ public class Main {
         int angle = 45;
         Camera.Resolution resolution = new Camera.Resolution(1280, 720);
         Camera camera = new Camera(new Screen(new Vector3D(FocusLength,0,0), new Point3D(-Distance,0,0)), resolution, 0);
-        PaintersAlgorithmCanvas canvas = new PaintersAlgorithmCanvas(camera);
+        CanvasPanel canvas = new CanvasPanel(camera);
 
         //Куб
 //        Point3D A = new Point3D(-50, -50, -100),
@@ -124,12 +124,8 @@ public class Main {
             List<Point3D> A = C.get(j), B = C.get(j+1);
             for (int i = 0; i < 360/step; i += 1) {
                 Color c = new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256), 255);
-                try{ drawableSet.add(new Polygon3D(A.get(i), A.get((i + 1) % (360/step)), B.get((i + 1) % (360/step)), c)); } catch (ImpossiblePolygonException ignored){
-                    ignored.printStackTrace();
-                }
-                try{ drawableSet.add(new Polygon3D(A.get(i), B.get(i), B.get((i + 1) % (360/step)), c)); } catch (ImpossiblePolygonException ignored){
-                    ignored.printStackTrace();
-                }
+                try{ drawableSet.add(new Polygon3D(A.get(i), A.get((i + 1) % (360/step)), B.get((i + 1) % (360/step)), c)); } catch (ImpossiblePolygonException ignored){}
+                try{ drawableSet.add(new Polygon3D(A.get(i), B.get(i), B.get((i + 1) % (360/step)), c)); } catch (ImpossiblePolygonException ignored){}
             }
         }
         System.out.println(drawableSet.size()+" polygons");
