@@ -26,7 +26,7 @@ public class Plane3D {
     }
 
     public double getD(){
-        return -(vector.x * point.x + vector.y * point.y + vector.z * point.z);
+        return utils.Math.roundNearZero(-(vector.x * point.x + vector.y * point.y + vector.z * point.z));
     }
 
     public Optional<Point3D> getIntersection(Line3D l){

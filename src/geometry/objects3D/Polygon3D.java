@@ -1,13 +1,12 @@
 package geometry.objects3D;
 
-import graph.Camera;
 import geometry.objects2D.Point2D;
 import geometry.objects2D.Polygon2D;
+import graph.Camera;
 import graph.Drawable;
 import utils.throwables.ImpossiblePlaneException;
 import utils.throwables.ImpossiblePolygonException;
 
-import javax.swing.text.Segment;
 import java.awt.*;
 import java.util.*;
 
@@ -28,6 +27,8 @@ public class Polygon3D implements Drawable {
         }catch (ImpossiblePlaneException e){
             throw new ImpossiblePolygonException();
         }
+        if(a1.equals(a2) || a1.equals(a3) || a2.equals(a3))
+            throw new ImpossiblePolygonException();
     }
 
     public Plane3D getPlane(){
@@ -91,14 +92,24 @@ public class Polygon3D implements Drawable {
     }
 
     @Override
-    public Collection<Drawable> split(Drawable drawable) {
+    public Collection<Drawable> split(Camera camera, Drawable drawable) {
         if (drawable instanceof Polygon3D){
-            return split((Polygon3D)drawable);
+            return split(camera, (Polygon3D)drawable);
         }
         return Collections.singleton(this);
     }
 
-    private Collection<Drawable> split(Polygon3D polygon3D){
+    private Collection<Drawable> split(Camera camera, Polygon3D polygon3D){
+
+
+        int commonPointsCount = 0;
+        if(polygon3D.a1.equals(a1) || polygon3D.a1.equals(a2) || polygon3D.a1.equals(a3)) commonPointsCount++;
+        if(polygon3D.a2.equals(a1) || polygon3D.a2.equals(a2) || polygon3D.a2.equals(a3)) commonPointsCount++;
+        if(polygon3D.a3.equals(a1) || polygon3D.a3.equals(a2) || polygon3D.a3.equals(a3)) commonPointsCount++;
+        if(commonPointsCount > 1 || polygon3D.compareZ(camera, polygon3D) == 0){
+            return Collections.singleton(this);
+        }
+
         Line3D l12 = new Line3D(a1, a2),
                 l23 = new Line3D(a2, a3),
                 l13 = new Line3D(a1, a3);

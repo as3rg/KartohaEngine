@@ -246,13 +246,13 @@ public class PaintersAlgorithmCanvas extends JPanel {
                 for(Drawable drawable2 : st.get(drawable.getRegion())){
                     if(drawable.equals(drawable2)) continue;
                     st.remove(drawable2);
-                    st.addAll(drawable2.split(drawable));
+                    st.addAll(drawable2.split(camera, drawable));
                 }
             }
 
             Set<Drawable> drawables = new TreeSet<>(((o1, o2) -> {
                 int res = o1.compareZ(camera, o2);
-                if (res == 0) return Integer.compare(o1.hashCode(), o2.hashCode());
+                if (res == 0) return 1;
                 return -res;
             }));
             drawables.addAll(st.get(st.getRegion()));

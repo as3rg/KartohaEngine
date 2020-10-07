@@ -10,7 +10,7 @@ import java.util.Collections;
 public interface Drawable extends Object3D {
 
     void draw(Graphics g, Camera camera);
-    default Collection<Drawable> split(Drawable drawable){
+    default Collection<Drawable> split(Camera camera, Drawable drawable){
         return Collections.singleton(this);
     }
 

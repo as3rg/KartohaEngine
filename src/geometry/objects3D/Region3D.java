@@ -1,5 +1,7 @@
 package geometry.objects3D;
 
+import java.util.Objects;
+
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -28,5 +30,19 @@ public class Region3D implements Object3D {
     public boolean crosses(Object3D o){
         Point3D oLow = o.getRegion().low, oHigh = o.getRegion().high;
         return low.x <= oHigh.x && low.y <= oHigh.y && low.z <= oHigh.z && high.x >= oLow.x && high.y >= oLow.y && high.z >= oLow.z;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Region3D region3D = (Region3D) o;
+        return Objects.equals(low, region3D.low) &&
+                Objects.equals(high, region3D.high);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(low, high);
     }
 }

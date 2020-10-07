@@ -24,36 +24,40 @@ public class Main {
         PaintersAlgorithmCanvas canvas = new PaintersAlgorithmCanvas(camera);
 
         //Куб
-        Point3D A = new Point3D(-50, -50, -100),
-                B = new Point3D(-50, -50, -200),
-                C = new Point3D(-50, 50, -200),
-                D = new Point3D(-50, 50, -100),
-                A2 = new Point3D(50, -50, -100),
-                B2 = new Point3D(50, -50, -200),
-                C2 = new Point3D(50, 50, -200),
-                D2 = new Point3D(50, 50, -100);
+//        Point3D A = new Point3D(-50, -50, -100),
+//                B = new Point3D(-50, -50, -200),
+//                C = new Point3D(-50, 50, -200),
+//                D = new Point3D(-50, 50, -100),
+//                A2 = new Point3D(50, -50, -100),
+//                B2 = new Point3D(50, -50, -200),
+//                C2 = new Point3D(50, 50, -200),
+//                D2 = new Point3D(50, 50, -100);
+//
+//
+//
+//        canvas.getDrawables().add(new Polygon3D(A, B, C, Color.RED));
+//        canvas.getDrawables().add(new Polygon3D(A, D, C, Color.RED));
+//
+//        canvas.getDrawables().add(new Polygon3D(A, B, B2, Color.GREEN));
+//        canvas.getDrawables().add(new Polygon3D(A, A2, B2, Color.GREEN));
+//
+//        canvas.getDrawables().add(new Polygon3D(D, D2, C2, Color.BLUE));
+//        canvas.getDrawables().add(new Polygon3D(D, C, C2, Color.BLUE));
+//
+//        canvas.getDrawables().add(new Polygon3D(D, A, A2, Color.YELLOW));
+//        canvas.getDrawables().add(new Polygon3D(D, D2, A2, Color.YELLOW));
+//        canvas.getDrawables().add(new Polygon3D(B, B2, C2, Color.ORANGE));
+//        canvas.getDrawables().add(new Polygon3D(B, C, C2, Color.ORANGE));
 
 
 
-        canvas.getDrawables().add(new Polygon3D(A, B, C, Color.RED));
-        canvas.getDrawables().add(new Polygon3D(A, D, C, Color.RED));
 
-        canvas.getDrawables().add(new Polygon3D(A, B, B2, Color.GREEN));
-        canvas.getDrawables().add(new Polygon3D(A, A2, B2, Color.GREEN));
-
-        canvas.getDrawables().add(new Polygon3D(D, D2, C2, Color.BLUE));
-        canvas.getDrawables().add(new Polygon3D(D, C, C2, Color.BLUE));
-
-        canvas.getDrawables().add(new Polygon3D(D, A, A2, Color.YELLOW));
-        canvas.getDrawables().add(new Polygon3D(D, D2, A2, Color.YELLOW));
-        canvas.getDrawables().add(new Polygon3D(B, B2, C2, Color.ORANGE));
-        canvas.getDrawables().add(new Polygon3D(B, C, C2, Color.ORANGE));
 //
 //        canvas.getDrawables().add(new Polygon3D(A2, B2, C2, Color.LIGHT_GRAY));
 //        canvas.getDrawables().add(new Polygon3D(new Point3D(0,0,0), new Point3D(0,0,50), new Point3D(0,50,50), Color.LIGHT_GRAY));
 
-//        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 120));
-//        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 15));
+        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 15));
+        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 15));
 //        canvas.getDrawables().addAll(drawSphere(0, 0,350, 75, 15));
 //        canvas.getDrawables().addAll(drawCylinder(0, 0,-50, 75, 400, 5));
 
@@ -116,11 +120,11 @@ public class Main {
         }
         //System.out.println(360*360/step/step+" points");
         Random r = new Random();
-        for(int j = 0; j < 360/step -1; j++) {
+        for(int j = 0; j < 180/step -1; j++) {
             List<Point3D> A = C.get(j), B = C.get(j+1);
             for (int i = 0; i < 360/step; i += 1) {
-                Color c = new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256), r.nextInt(256));
-                try{ drawableSet.add(new Polygon3D(A.get(i), B.get(i), A.get((i + 1) % (360/step)), c)); } catch (ImpossiblePolygonException ignored){
+                Color c = new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256), 255);
+                try{ drawableSet.add(new Polygon3D(A.get(i), A.get((i + 1) % (360/step)), B.get((i + 1) % (360/step)), c)); } catch (ImpossiblePolygonException ignored){
                     ignored.printStackTrace();
                 }
                 try{ drawableSet.add(new Polygon3D(A.get(i), B.get(i), B.get((i + 1) % (360/step)), c)); } catch (ImpossiblePolygonException ignored){
@@ -128,7 +132,7 @@ public class Main {
                 }
             }
         }
-        //System.out.println(2*360*360/step/step+" polygons");
+        System.out.println(drawableSet.size()+" polygons");
         return drawableSet;
     }
 
@@ -144,9 +148,13 @@ public class Main {
         //System.out.println(2*360/step+" points");
         Random r = new Random();
         for (int i = 0; i < 360/step; i += 1) {
-            Color c = new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256), r.nextInt(256));
-            drawableSet.add(new Polygon3D(A.get(i), B.get(i), A.get((i + 1) % (360/step)), c));
-            drawableSet.add(new Polygon3D(A.get(i), B.get(i), B.get((i + 1) % (360/step)), c));
+            Color c = new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256), 255);
+            try {
+                drawableSet.add(new Polygon3D(A.get(i), A.get((i + 1) % (360 / step)), B.get((i + 1) % (360/step)), c));
+            }catch (ImpossiblePolygonException ignored){}
+            try {
+                drawableSet.add(new Polygon3D(A.get(i), B.get(i), B.get((i + 1) % (360/step)), c));
+            }catch (ImpossiblePolygonException ignored){}
         }
         //System.out.println(drawableSet.size()+" polygons");
         return drawableSet;

@@ -2,19 +2,21 @@ package geometry.objects3D;
 
 import utils.throwables.ImpossibleVectorException;
 
+import java.util.Objects;
+
 public class Vector3D {
     public final double x,y,z;
 
     public Vector3D(double x, double y, double z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.x = utils.Math.roundNearZero(x);
+        this.y = utils.Math.roundNearZero(y);
+        this.z = utils.Math.roundNearZero(z);
     }
 
     public Vector3D(Point3D p1, Point3D p2) {
-        this.x = p2.x-p1.x;
-        this.y = p2.y-p1.y;
-        this.z = p2.z-p1.z;
+        this.x = utils.Math.roundNearZero(p2.x-p1.x);
+        this.y = utils.Math.roundNearZero(p2.y-p1.y);
+        this.z = utils.Math.roundNearZero(p2.z-p1.z);
         if(getLength() == 0){
             throw new ImpossibleVectorException();
         }
@@ -37,10 +39,26 @@ public class Vector3D {
     }
 
     public double getLength(){
-        return Math.sqrt(x*x+y*y+z*z);
+        return utils.Math.roundNearZero(Math.sqrt(x*x+y*y+z*z));
     }
 
     public double scalarProduct(Vector3D v){
-        return x*v.x+y*v.y+z*v.z;
+        return utils.Math.roundNearZero(x*v.x+y*v.y+z*v.z);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Vector3D vector3D = (Vector3D) o;
+        return utils.Math.roundNearZero(vector3D.x-x) == 0 &&
+                utils.Math.roundNearZero(vector3D.y-y) == 0 &&
+                utils.Math.roundNearZero(vector3D.z-z) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z);
     }
 }
+

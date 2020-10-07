@@ -17,7 +17,7 @@ public class SearchTree3D<T extends Object3D> {
         region = new Region3D(new Point3D(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z)), new Point3D(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z)));
 
         Point3D high = region.high, low = region.low;
-        if((high.x-low.x)*(high.y-low.y)*(high.z-low.z) <= 0.25){
+        if((high.x-low.x)*(high.y-low.y)*(high.z-low.z) <= LIMIT_VOLUME){
             isLeaf = true;
             isInited = true;
         }else {
