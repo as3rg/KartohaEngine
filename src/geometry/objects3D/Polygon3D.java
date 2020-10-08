@@ -48,12 +48,17 @@ public class Polygon3D implements Drawable, Object3D {
 
 //        new Polygon2D(a.get(), b.get(), c.get(), color).draw(cp, camera);
 
+        Vector2D v232D = new Vector2D(b.get(),c.get());
         Vector3D v23 = new Vector3D(a2, a3);
-        for(double j = 1; j <= v23.getLength(); j+=0.5){
-            Point3D p = v23.multiply(j/v23.getLength()).addToPoint(a2);
+        for(double j = 1; j <= v232D.getLength(); j+=0.5){
+            Point3D p = v23.multiply(j/v232D.getLength()).addToPoint(a2);
             Vector3D v1p = new Vector3D(a1, p);
-            for(double i = 1; i <= v1p.getLength(); i+=0.5){
-                Point3D p2 = v1p.multiply(i/v1p.getLength()).addToPoint(a1);
+            Optional<Point2D> p2D = camera.project(p);
+            if(!p2D.isPresent())
+                continue;
+            Vector2D v1p2D = new Vector2D(a.get(), p2D.get());
+            for(double i = 1; i <= v1p2D.getLength(); i+=0.5){
+                Point3D p2 = v1p.multiply(i/v1p2D.getLength()).addToPoint(a1);
                 Optional<Point2D> p22 = camera.project(p2);
                 p22.ifPresent(point2D -> cp.set((int) point2D.x, (int) point2D.y, new Pixel(new Vector3D(camera.getScreen().focus, p2).getLength(), color)));
             }
