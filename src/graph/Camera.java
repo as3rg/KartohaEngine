@@ -203,8 +203,10 @@ public class Camera {
     }
     
     public Optional<Point2D> project(Point3D point3D){
+        if(screen.focus.equals(point3D))
+            return Optional.empty();
         Optional<Point3D> projectionO = screen.getIntersection(new Line3D(screen.focus, point3D));
-        if (!projectionO.isPresent())
+        if (!projectionO.isPresent() || new Region3D(point3D, projectionO.get()).contains(screen.focus))
             return Optional.empty();
         Point3D projection = projectionO.get();
         Point3D smm = screen.vector.addToPoint(screen.focus);

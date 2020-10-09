@@ -243,7 +243,9 @@ public class CanvasPanel extends JPanel {
             Canvas canvas = new Canvas(camera.getResolution());
             long startCalculating = System.nanoTime();
             for (Drawable drawable : drawables) {
+//                long time = System.nanoTime();
                 drawable.draw(canvas, camera);
+//                System.out.println(System.nanoTime() - time);
             }
 //            for (Drawable drawable : drawables) {
 //                for(Drawable drawable2 : st.get(drawable.getRegion())){

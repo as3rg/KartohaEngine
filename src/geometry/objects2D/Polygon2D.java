@@ -10,7 +10,10 @@ import graph.Pixel;
 import java.awt.*;
 import java.util.Random;
 
-public class Polygon2D implements Drawable {
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
+public class Polygon2D implements Drawable, Object2D {
     public final Point2D a1, a2, a3;
     public final Color color;
 
@@ -34,7 +37,6 @@ public class Polygon2D implements Drawable {
         cp.set((int) a2.x, (int) a2.y, new Pixel(1, color));
         cp.set((int) a3.x, (int) a3.y, new Pixel(1, color));
 
-
         Vector2D v23 = new Vector2D(a2, a3);
         for(int j = 1; j <= v23.getLength(); j++){
             Point2D p = v23.multiply(j/v23.getLength()).addToPoint(a2);
@@ -44,5 +46,12 @@ public class Polygon2D implements Drawable {
                 cp.set((int)p2.x, (int)p2.y, new Pixel(1,color));
             }
         }
+    }
+
+    @Override
+    public Region2D getRegion() {
+        return new Region2D(
+                new Point2D(min(min(a1.x, a2.x), a3.x), min(min(a1.y, a2.y), a3.y)),
+                new Point2D(max(max(a1.x, a2.x), a3.x), max(max(a1.y, a2.y), a3.y)));
     }
 }
