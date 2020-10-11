@@ -209,7 +209,7 @@ public class Camera {
         if (!projectionO.isPresent() || new Region3D(point3D, projectionO.get()).contains(screen.focus))
             return Optional.empty();
         Point3D projection = projectionO.get();
-        Point3D smm = screen.vector.addToPoint(screen.focus);
+        Point3D smm = screen.point;
         Pair<Vector3D, Vector3D> basises = getBasises(res.width/2, res.height/2);
         Vector3D bW = basises.getKey(),
                 bH = basises.getValue();

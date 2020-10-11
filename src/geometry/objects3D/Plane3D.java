@@ -30,8 +30,9 @@ public class Plane3D {
     }
 
     public Optional<Point3D> getIntersection(Line3D l){
-        if (vector.scalarProduct(l.vector) == 0) return Optional.empty();
-        double t = -(getD() + vector.x*l.point.x + vector.y*l.point.y+vector.z*l.point.z)/vector.scalarProduct(l.vector);
+        double sp = vector.scalarProduct(l.vector);
+        if (sp == 0) return Optional.empty();
+        double t = -(getD() + vector.x*l.point.x + vector.y*l.point.y+vector.z*l.point.z)/sp;
         return Optional.of(l.vector.multiply(t).addToPoint(l.point));
     }
 

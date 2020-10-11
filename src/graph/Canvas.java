@@ -3,6 +3,7 @@ package graph;
 import geometry.objects2D.Point2D;
 import geometry.objects2D.Vector2D;
 import geometry.objects3D.Point3D;
+import sun.security.util.Cache;
 
 public class Canvas {
 
@@ -29,10 +30,10 @@ public class Canvas {
         return canvas[i][j];
     }
 
-    public void set(int i, int j, Pixel pixel){
-        if(i < 0 || j < 0 || i >= resolution.width || j >= resolution.height){
+    public void set(int i, int j, Pixel pixel) {
+        if (i < 0 || j < 0 || i >= resolution.width || j >= resolution.height) {
             return;
         }
-        if(pixel.distance < get(i,j).distance) canvas[i][j] = pixel;
+        if (pixel.distance < get(i, j).distance) canvas[i][j] = pixel;
     }
 }

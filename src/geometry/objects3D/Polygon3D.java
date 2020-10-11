@@ -46,6 +46,9 @@ public class Polygon3D implements Drawable, Object3D {
         if (!a12D.isPresent() || !a22D.isPresent() || !a32D.isPresent() || !new Polygon2D(a12D.get(), a22D.get(), a32D.get(), color).getRegion().crosses(new Region2D(new Point2D(0,0), new Point2D(camera.getResolution().width, camera.getResolution().height))))
             return;
 
+//        cp.set((int) a12D.get().x, (int) a12D.get().y, new Pixel(1, color));
+//        cp.set((int) a22D.get().x, (int) a22D.get().y, new Pixel(1, color));
+//        cp.set((int) a32D.get().x, (int) a32D.get().y, new Pixel(1, color));
 //        new Polygon2D(a12D.get(), a22D.get(), a32D.get(), color).draw(cp, camera);
         Vector2D v232D = new Vector2D(a22D.get(),a32D.get());
         Vector3D v23 = new Vector3D(a2, a3);

@@ -1,6 +1,10 @@
 package graph;
 
+import com.aparapi.Kernel;
+import com.aparapi.Range;
+import geometry.objects2D.Point2D;
 import geometry.objects3D.Point3D;
+import geometry.objects3D.Polygon3D;
 import geometry.objects3D.SearchTree3D;
 import geometry.objects3D.Vector3D;
 
@@ -9,6 +13,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +37,7 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mU.addToPoint(focus)));
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -46,6 +54,7 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mU.multiply(-1).addToPoint(focus)));
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -62,6 +71,7 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mR.multiply(-1).addToPoint(focus)));
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -78,6 +88,7 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mR.addToPoint(focus)));
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -94,6 +105,7 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mF.addToPoint(focus)));
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -110,6 +122,7 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mF.multiply(-1).addToPoint(focus)));
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -123,6 +136,7 @@ public class CanvasPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     camera.setRotateAngle(camera.getRotateAngle() + rotateStep);
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -136,6 +150,7 @@ public class CanvasPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     camera.setRotateAngle(camera.getRotateAngle() - rotateStep);
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -150,6 +165,7 @@ public class CanvasPanel extends JPanel {
                 synchronized (camera) {
                     Vector3D rR = camera.getRightRotatedVectors(2*Math.PI-rotateStep);
                     camera.setScreen(new Screen(rR, camera.getScreen().focus));
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -164,6 +180,7 @@ public class CanvasPanel extends JPanel {
                 synchronized (camera) {
                     Vector3D rR = camera.getRightRotatedVectors(rotateStep);
                     camera.setScreen(new Screen(rR, camera.getScreen().focus));
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -178,6 +195,7 @@ public class CanvasPanel extends JPanel {
                 synchronized (camera) {
                     Vector3D rT = camera.getTopRotatedVectors(-rotateStep);
                     camera.setScreen(new Screen(rT, camera.getScreen().focus));
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -192,6 +210,7 @@ public class CanvasPanel extends JPanel {
                 synchronized (camera) {
                     Vector3D rT = camera.getTopRotatedVectors(rotateStep);
                     camera.setScreen(new Screen(rT, camera.getScreen().focus));
+                    kernel.setCamera(camera);
                     repaint();
                 }
             }
@@ -227,6 +246,35 @@ public class CanvasPanel extends JPanel {
 
     long drawingTime, calculatingTime;
 
+    public KernelProcess kernel;
+
+    public void prepare(){
+        kernel = new KernelProcess(camera, 1156680);
+        int i = 0;
+        for(Drawable d : drawables) {
+            Polygon3D p = (Polygon3D) d;
+            kernel.colors[i] = p.color.getRed();
+            kernel.colors[i+1] = p.color.getGreen();
+            kernel.colors[i+2] = p.color.getBlue();
+
+            kernel.x[i] = p.a1.x;
+            kernel.y[i] = p.a1.y;
+            kernel.z[i] = p.a1.z;
+            i++;
+            kernel.x[i] = p.a2.x;
+            kernel.y[i] = p.a2.y;
+            kernel.z[i] = p.a2.z;
+            i++;
+            kernel.x[i] = p.a3.x;
+            kernel.y[i] = p.a3.y;
+            kernel.z[i] = p.a3.z;
+            i++;
+        }
+        kernel.count = i;
+        kernel.setExecutionMode(Kernel.EXECUTION_MODE.GPU);
+
+    }
+
     @Override
     protected void paintComponent(Graphics g2) {
         super.paintComponent(g2);
@@ -235,18 +283,54 @@ public class CanvasPanel extends JPanel {
             calculatingTime = 0;
 
             long startDrawing = System.nanoTime();
-            BufferedImage bufferedImage = new BufferedImage((int) camera.getResolution().width, (int) camera.getResolution().height, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage bufferedImage = new BufferedImage((int) camera.getResolution().width, (int) camera.getResolution().height, BufferedImage.TYPE_INT_RGB);
             drawingTime += System.nanoTime() - startDrawing;
 
 //            SearchTree3D<Drawable> st = new SearchTree3D<>(drawables);
 
-            Canvas canvas = new Canvas(camera.getResolution());
+//            Canvas canvas = new Canvas(camera.getResolution());
             long startCalculating = System.nanoTime();
-            for (Drawable drawable : drawables) {
-//                long time = System.nanoTime();
-                drawable.draw(canvas, camera);
-//                System.out.println(System.nanoTime() - time);
-            }
+//            Canvas[] canvas1 = new Canvas[drawables2.length];
+
+//            int i = 0;
+//            KernelProcess kernel = new KernelProcess(camera, 1156680);
+//            for(Drawable d : drawables) {
+//                Polygon3D p = (Polygon3D) d;
+//                kernel.x[i] = p.a1.x;
+//                kernel.y[i] = p.a1.y;
+//                kernel.z[i] = p.a1.z;
+//                i++;
+//                kernel.x[i] = p.a2.x;
+//                kernel.y[i] = p.a2.y;
+//                kernel.z[i] = p.a2.z;
+//                i++;
+//                kernel.x[i] = p.a3.x;
+//                kernel.y[i] = p.a3.y;
+//                kernel.z[i] = p.a3.z;
+//                i++;
+//            }
+
+            kernel.execute(kernel.count);
+
+
+            calculatingTime = System.nanoTime() - startCalculating;
+            startDrawing = System.nanoTime();
+
+            bufferedImage.getRaster().setPixels(0,0,(int)camera.getResolution().width, (int)camera.getResolution().height, kernel.result);
+//            for(Point2D p : kernel.getResult()){
+//                if(p.x >= 0 && p.x < camera.getResolution().width && p.y >= 0 && p.y < camera.getResolution().height) {
+//                    bufferedImage.setRGB((int) p.x, (int) p.y, Color.BLACK.getRGB());
+//                }
+//            }
+//            for(Canvas i2 : iii){
+//                System.out.println(i2);
+//            }
+
+//            for (Drawable drawable : drawables) {
+////                long time = System.nanoTime();
+//                drawable.draw(canvas, camera);
+////                System.out.println(System.nanoTime() - time);
+//            }
 //            for (Drawable drawable : drawables) {
 //                for(Drawable drawable2 : st.get(drawable.getRegion())){
 //                    if(drawable.equals(drawable2)) continue;
@@ -262,18 +346,20 @@ public class CanvasPanel extends JPanel {
 //            }));
 //            drawables.addAll(st.get(st.getRegion()));
 
-            calculatingTime = System.nanoTime() - startCalculating;
 
-            startDrawing = System.nanoTime();
-            for(int i = 0; i < canvas.getResolution().width; i++){
-                for(int j = 0; j < canvas.getResolution().height; j++){
-                    bufferedImage.setRGB(i, j,canvas.get(i, j).color.getRGB());
-                }
-            }
+//            for(int i = 0; i < canvas.getResolution().width; i++){
+//                for(int j = 0; j < canvas.getResolution().height; j++){
+//                    bufferedImage.setRGB(i, j,canvas.get(i, j).color.getRGB());
+//                }
+//            }
             ((Graphics2D) g2).drawImage(bufferedImage, null, 0, 0);
             drawingTime += System.nanoTime() - startDrawing;
-            System.out.println("Calculating: " + calculatingTime);
-            System.out.println("Drawing: " + drawingTime);
+//            System.out.println("Calculating: " + calculatingTime);
+//            System.out.println("Drawing: " + drawingTime);
+//            PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
+//            out.println("Calculating: " + calculatingTime);
+//            out.println("Drawing: " + drawingTime);
+//            out.flush();
         }
     }
 

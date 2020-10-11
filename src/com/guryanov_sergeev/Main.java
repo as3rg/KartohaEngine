@@ -59,6 +59,8 @@ public class Main {
         canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 1));
         canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 1));
         canvas.getDrawables().addAll(drawSphere(200, 0,0, 100, 1));
+
+        canvas.prepare();
 //        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 1));
 //        canvas.getDrawables().addAll(drawSphere(0, 0,350, 75, 15));
 //        canvas.getDrawables().addAll(drawCylinder(0, 0,-50, 75, 400, 5));
