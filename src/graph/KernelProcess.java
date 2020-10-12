@@ -1,49 +1,63 @@
 package graph;
 
 import com.aparapi.Kernel;
-import geometry.objects2D.Point2D;
 import geometry.objects3D.Vector3D;
 import javafx.util.Pair;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.util.Arrays;
 
 public class KernelProcess extends Kernel {
 
     double[] focus, screenVector, screenPoint, bH, bW, res;
     double[] resultX, resultY, resultZ, x, y, z;
+    double[] bufferX2D, bufferY2D;
     double[] bufferX, bufferY, bufferZ;
-    double[] bufferX2, bufferY2, bufferZ2;
-    int[] result;
+    int[] imageData;
     double[] depth;
     int[] colors;
     int count;
 
-    public Collection<Point2D> getResult(){
-        Set<Point2D> res = new HashSet<>();
-        for(int i = 0; i < count; i++){
-            res.add(new Point2D(resultX[i], resultY[i]));
-        }
-        return res;
-    }
-
-    KernelProcess(Camera c, int count){
+    KernelProcess(Camera c, int count, BufferedImage image){
         this.count = count;
+        imageData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         setCamera(c);
         x = new double[count*3];
         y = new double[count*3];
         z = new double[count*3];
-        colors = new int[3*count];
+        colors = new int[count];
         resultX = new double[count];
         resultY = new double[count];
         resultZ = new double[count];
+        bufferX2D = new double[count];
+        bufferY2D = new double[count];
         bufferX = new double[count];
         bufferY = new double[count];
         bufferZ = new double[count];
-        bufferX2 = new double[count];
-        bufferY2 = new double[count];
-        bufferZ2 = new double[count];
+
+        put(x);
+        put(y);
+        put(z);
+        put(colors);
+        put(resultX);
+        put(resultY);
+        put(resultZ);
+        put(bufferX2D);
+        put(bufferY2D);
+        put(bufferX);
+        put(bufferY);
+        put(bufferZ);
+
+
+        setExplicit(true);
+
+    }
+
+    public void get(){
+        if(isExplicit()){
+            get(imageData);
+        }
     }
 
     public void setCamera(Camera c){
@@ -56,8 +70,18 @@ public class KernelProcess extends Kernel {
         this.bH = new double[]{bH.x, bH.y, bH.z};
         this.screenPoint = new double[]{c.getScreen().point.x, c.getScreen().point.y,c.getScreen().point.z};
         this.screenVector = new double[]{c.getScreen().vector.x, c.getScreen().vector.y, c.getScreen().vector.z};
-        result = new int[(int)c.getResolution().height*(int)c.getResolution().width*3];
         depth = new double[(int)c.getResolution().height*(int)c.getResolution().width];
+
+        Arrays.fill(imageData, 0);
+
+        put(imageData);
+        put(focus);
+        put(res);
+        put(this.bW);
+        put(this.bH);
+        put(screenPoint);
+        put(screenVector);
+        put(depth);
     }
     
     public double min(double a, double b){
@@ -93,19 +117,19 @@ public class KernelProcess extends Kernel {
         if (sp != 0) {
             double d = -(screenVector[0] * screenPoint[0] + screenVector[1] * screenPoint[1] + screenVector[2] * screenPoint[2]);
             double t = -(d + x1 * screenVector[0] + y1 * screenVector[1] + z1 * screenVector[2]) / sp;
-            bufferX2[gid] = vectorX*t+x1;
-            bufferY2[gid] = vectorY*t+y1;
-            bufferZ2[gid] = vectorZ*t+z1;
+            bufferX[gid] = vectorX*t+x1;
+            bufferY[gid] = vectorY*t+y1;
+            bufferZ[gid] = vectorZ*t+z1;
             return true;
         }
         return false;
     }
 
     public boolean project(int gid, double px, double py, double pz){
-        if((focus[0] != px || focus[1] != py || focus[2] != pz) && getIntersection(gid, focus[0], focus[1], focus[2], px, py,pz) && !inRegion(px,py,pz, bufferX2[gid], bufferY2[gid], bufferZ2[gid], focus[0], focus[1], focus[2])) {
-            double projectionX = bufferX2[gid],
-                    projectionY = bufferY2[gid],
-                    projectionZ = bufferZ2[gid];
+        if((focus[0] != px || focus[1] != py || focus[2] != pz) && getIntersection(gid, focus[0], focus[1], focus[2], px, py,pz) && !inRegion(px,py,pz, bufferX[gid], bufferY[gid], bufferZ[gid], focus[0], focus[1], focus[2])) {
+            double projectionX = bufferX[gid],
+                    projectionY = bufferY[gid],
+                    projectionZ = bufferZ[gid];
             double smmX = screenPoint[0];
             double smmY = screenPoint[1];
             double smmZ = screenPoint[2];
@@ -176,8 +200,8 @@ public class KernelProcess extends Kernel {
                 }
             }
             if(roHNotNull && roWNotNull){
-                bufferX[gid] = roW * res[0] + res[0] / 2;
-                bufferY[gid] = -roH * res[1] + res[1] / 2;
+                bufferX2D[gid] = roW * res[0] + res[0] / 2;
+                bufferY2D[gid] = -roH * res[1] + res[1] / 2;
                 return true;
             }
         }
@@ -213,26 +237,90 @@ public class KernelProcess extends Kernel {
     @Override
     public void run() {
         int gid = getGlobalId();
-        int r = colors[gid*3],
-                g = colors[gid*3+1],
-                b = colors[gid*3+2];
-        if(project(gid, x[gid*3], y[gid*3], z[gid*3]) && bufferX[gid] >= 0 && bufferX[gid] < res[0] && bufferY[gid] >= 0 && bufferY[gid] <= res[1]) {
-            int i = (int)bufferY[gid]*(int)res[0]+(int)bufferX[gid];
-            result[3*i]=r;
-            result[3*i+1]=g;
-            result[3*i+2]=b;
-        }
-        if(project(gid, x[gid*3+1], y[gid*3+1], z[gid*3+1]) && bufferX[gid] >= 0 && bufferX[gid] < res[0] && bufferY[gid] >= 0 && bufferY[gid] <= res[1]) {
-            int i = (int)bufferY[gid]*(int)res[0]+(int)bufferX[gid];
-            result[3*i]=r;
-            result[3*i+1]=g;
-            result[3*i+2]=b;
-        }
-        if(project(gid, x[gid*3+2], y[gid*3+2], z[gid*3+2]) && bufferX[gid] >= 0 && bufferX[gid] < res[0] && bufferY[gid] >= 0 && bufferY[gid] <= res[1]) {
-            int i = (int)bufferY[gid]*(int)res[0]+(int)bufferX[gid];
-            result[3*i]=r;
-            result[3*i+1]=g;
-            result[3*i+2]=b;
+        double a1x = 0, a1y = 0, a1z = 0, a12Dx = 0, a12Dy = 0,
+                a2x = 0, a2y = 0, a2z = 0, a22Dx = 0, a22Dy = 0,
+                a3x = 0, a3y = 0, a3z = 0, a32Dx = 0, a32Dy = 0;
+        if(project(gid, x[gid*3], y[gid*3], z[gid*3])) {
+            a1x = bufferX[gid];
+            a1y = bufferY[gid];
+            a1z = bufferZ[gid];
+            a12Dx = bufferX2D[gid];
+            a12Dy = bufferY2D[gid];
+        }else return;
+        if(project(gid, x[gid*3+1], y[gid*3+1], z[gid*3+1])) {
+            a2x = bufferX[gid];
+            a2y = bufferY[gid];
+            a2z = bufferZ[gid];
+            a22Dx = bufferX2D[gid];
+            a22Dy = bufferY2D[gid];
+        }else return;
+        if(project(gid, x[gid*3+2], y[gid*3+2], z[gid*3+2])) {
+            a3x = bufferX[gid];
+            a3y = bufferY[gid];
+            a3z = bufferZ[gid];
+            a32Dx = bufferX2D[gid];
+            a32Dy = bufferY2D[gid];
+        }else return;
+
+
+        double v232Dx = a32Dx - a22Dx,
+                v232Dy = a32Dy - a22Dy,
+                v232DLen = Math.sqrt(v232Dx*v232Dx + v232Dy*v232Dy);
+        double v23x = a3x - a2x,
+                v23y = a3y - a2y,
+                v23z = a3z - a2z;
+//                v23Len = Math.sqrt(v23x*v23x + v23y*v23y + v23z*v23z);
+        for (double j = 0; j <= v232DLen; j += 1) {
+            double px = v23x*(j/v232DLen)+a2x,
+                    py = v23y*(j/v232DLen)+a2y,
+                    pz = v23z*(j/v232DLen)+a2z;
+            double v1px = px - a1x,
+                    v1py = py - a1y,
+                    v1pz = pz - a1z;
+
+            double p2Dx = v232Dx*(j/v232DLen)+a22Dx,
+                    p2Dy = v232Dy*(j/v232DLen)+a22Dy;
+            double v1p2Dx = p2Dx - a12Dx,
+                    v1p2Dy = p2Dy - a12Dy,
+                    v1p2DLen = Math.sqrt(v1p2Dx*v1p2Dx + v1p2Dy*v1p2Dy);
+            for (double i = 0; i <= v1p2DLen; i += 1) {
+                double p2x = v1px*(i/v1p2DLen)+a1x,
+                        p2y = v1py*(i/v1p2DLen)+a1y,
+                        p2z = v1pz*(i/v1p2DLen)+a1z;
+                double p22Dx = v1p2Dx*(i/v1p2DLen)+a12Dx,
+                        p22Dy = v1p2Dy*(i/v1p2DLen)+a12Dy;
+                int index = (int) res[0] * (int) p22Dy + (int) p22Dx;
+                double p2fx = p2x - focus[0],
+                        p2fy = p2y - focus[1],
+                        p2fz = p2z - focus[2];
+                double d = Math.sqrt(p2fx*p2fx+p2fy*p2fy+p2fz*p2fz);
+                if(p22Dx >= 0 && p22Dx < res[0] && p22Dy >= 0 && p22Dy < res[1]) {
+                    imageData[index] = colors[gid];
+                    depth[index] = d;
+                }
+            }
         }
     }
+
+//    @Override
+//    public void run() {
+//        int gid = getGlobalId();
+//        int r = colors[gid*3],
+//                g = colors[gid*3+1],
+//                b = colors[gid*3+2];
+//        if(project(gid, x[gid*3], y[gid*3], z[gid*3]) && bufferX2D[gid] >= 0 && bufferX2D[gid] < res[0] && bufferY2D[gid] >= 0 && bufferY2D[gid] <= res[1]) {
+//            int i = (int)bufferY2D[gid]*(int)res[0]+(int)bufferX2D[gid];
+//            imageData[i]=r*256*256+g*256+b;
+////            result[3*i+1]=g;
+////            result[3*i+2]=b;
+//        }
+//        if(project(gid, x[gid*3+1], y[gid*3+1], z[gid*3+1]) && bufferX2D[gid] >= 0 && bufferX2D[gid] < res[0] && bufferY2D[gid] >= 0 && bufferY2D[gid] <= res[1]) {
+//            int i = (int)bufferY2D[gid]*(int)res[0]+(int)bufferX2D[gid];
+//            imageData[i]=r*256*256+g*256+b;
+//        }
+//        if(project(gid, x[gid*3+2], y[gid*3+2], z[gid*3+2]) && bufferX2D[gid] >= 0 && bufferX2D[gid] < res[0] && bufferY2D[gid] >= 0 && bufferY2D[gid] <= res[1]) {
+//            int i = (int)bufferY2D[gid]*(int)res[0]+(int)bufferX2D[gid];
+//            imageData[i]=r*256*256+g*256+b;
+//        }
+//    }
 }

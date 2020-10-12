@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="KartohaEngine:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/KartohaEngine_jar</output-path>
+    <root id="archive" name="KartohaEngine.jar">
+      <element id="module-output" name="KartohaEngine" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/aparapi/aparapi/2.0.0/aparapi-2.0.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/aparapi/aparapi-jni/1.4.2/aparapi-jni-1.4.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/bcel/bcel/6.4.1/bcel-6.4.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.13.1/scala-library-2.13.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

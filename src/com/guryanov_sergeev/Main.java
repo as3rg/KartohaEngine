@@ -19,7 +19,7 @@ public class Main {
     public static final int Distance = 500;
     public static void main(String[] args) {
         int angle = 45;
-        Camera.Resolution resolution = new Camera.Resolution(1280, 720);
+        Camera.Resolution resolution = new Camera.Resolution(1920, 1080);
         Camera camera = new Camera(new Screen(new Vector3D(FocusLength,0,0), new Point3D(-Distance,0,0)), resolution, 0);
         CanvasPanel canvas = new CanvasPanel(camera);
 
@@ -56,9 +56,9 @@ public class Main {
 //        canvas.getDrawables().add(new Polygon3D(A2, B2, C2, Color.LIGHT_GRAY));
 //        canvas.getDrawables().add(new Polygon3D(new Point3D(0,0,0), new Point3D(0,0,50), new Point3D(0,50,50), Color.LIGHT_GRAY));
 
-        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 1));
-        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 1));
-        canvas.getDrawables().addAll(drawSphere(200, 0,0, 100, 1));
+        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 15));
+        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 15));
+        canvas.getDrawables().addAll(drawSphere(200, 0,0, 100, 15));
 
         canvas.prepare();
 //        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 1));
@@ -85,7 +85,7 @@ public class Main {
         JFrame frame = new JFrame();
 
         frame.getContentPane().add(canvas, BorderLayout.CENTER);
-        frame.setSize(1280, 720);
+        frame.setSize(1920, 1080);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
@@ -110,6 +110,11 @@ public class Main {
 //                }
 //            }
 //        }).start();
+        new Thread(()->{
+            while (true) {
+                canvas.repaint();
+            }
+        }).start();
     }
 
     public static Collection<Drawable> drawSphere(double x, double y, double z, double R, int step){
