@@ -7,21 +7,57 @@ import geometry.objects3D.Vector3D;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Set;
 
 public class CanvasPanel extends JPanel {
-    public CanvasPanel(Camera camera){
+    public CanvasPanel(Camera camera) {
         this.camera = camera;
-        image = new BufferedImage((int)camera.getResolution().width, (int)camera.getResolution().height, BufferedImage.TYPE_INT_RGB);
+        image = new BufferedImage((int) camera.getResolution().width, (int) camera.getResolution().height, BufferedImage.TYPE_INT_RGB);
         setDoubleBuffered(false);
         this.setFocusable(true);
         this.requestFocusInWindow();
-        
+
+        BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                cursorImg, new Point(0, 0), "blank cursor");
+        setCursor(blankCursor);
+
         requestFocus();
+
+
+        addMouseMotionListener(new MouseMotionAdapter() {
+            Robot r;
+
+            boolean working = false;
+
+            {
+                try {
+                    r = new Robot();
+                } catch (AWTException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                super.mouseMoved(e);
+                if (!working) {
+                    synchronized (camera) {
+                        working = true;
+                        Vector3D v = camera.getRotatedVector(Math.PI * (e.getX() - (getWidth() / 2.0 + getX())) / getWidth(),
+                                -Math.PI * (e.getY() - (getHeight() / 2.0 + getY())) / getHeight());
+                        camera.setScreen(new Screen(v, camera.getScreen().focus));
+                        kernel.setCamera(camera, image);
+                        r.mouseMove(getX() + getWidth() / 2, getY() + getHeight() / 2);
+                        working = false;
+                    }
+                }
+            }
+        });
+
         this.getInputMap().put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), UP);
         Action up = new AbstractAction(UP) {
@@ -32,8 +68,8 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mU.addToPoint(focus)));
-                    kernel.setCamera(camera);
-                    
+                    kernel.setCamera(camera, image);
+
                 }
             }
         };
@@ -49,8 +85,8 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mU.multiply(-1).addToPoint(focus)));
-                    kernel.setCamera(camera);
-                    
+                    kernel.setCamera(camera, image);
+
                 }
             }
         };
@@ -66,8 +102,8 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mR.multiply(-1).addToPoint(focus)));
-                    kernel.setCamera(camera);
-                    
+                    kernel.setCamera(camera, image);
+
                 }
             }
         };
@@ -83,8 +119,8 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mR.addToPoint(focus)));
-                    kernel.setCamera(camera);
-                    
+                    kernel.setCamera(camera, image);
+
                 }
             }
         };
@@ -100,8 +136,8 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mF.addToPoint(focus)));
-                    kernel.setCamera(camera);
-                    
+                    kernel.setCamera(camera, image);
+
                 }
             }
         };
@@ -117,8 +153,8 @@ public class CanvasPanel extends JPanel {
                     Point3D focus = camera.getScreen().focus;
 
                     camera.setScreen(new Screen(camera.getScreen().vector, mF.multiply(-1).addToPoint(focus)));
-                    kernel.setCamera(camera);
-                    
+                    kernel.setCamera(camera, image);
+
                 }
             }
         };
@@ -131,8 +167,8 @@ public class CanvasPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     camera.setRotateAngle(camera.getRotateAngle() + rotateStep);
-                    kernel.setCamera(camera);
-                    
+                    kernel.setCamera(camera, image);
+
                 }
             }
         };
@@ -145,81 +181,14 @@ public class CanvasPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 synchronized (camera) {
                     camera.setRotateAngle(camera.getRotateAngle() - rotateStep);
-                    kernel.setCamera(camera);
-                    
+                    kernel.setCamera(camera, image);
+
                 }
             }
         };
         this.getActionMap().put(ROTATEMINUS, rotateMinus);
 
-        this.getInputMap().put(
-                KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), CAMERAXPLUS);
-        Action cameraXPlus = new AbstractAction(CAMERAXPLUS) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                synchronized (camera) {
-                    Vector3D rR = camera.getRightRotatedVectors(2*Math.PI-rotateStep);
-                    camera.setScreen(new Screen(rR, camera.getScreen().focus));
-                    kernel.setCamera(camera);
-                    
-                }
-            }
-        };
-        this.getActionMap().put(CAMERAXPLUS, cameraXPlus);
-
-        this.getInputMap().put(
-                KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), CAMERAXMINUS);
-        Action cameraXMinus = new AbstractAction(CAMERAXMINUS) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                synchronized (camera) {
-                    Vector3D rR = camera.getRightRotatedVectors(rotateStep);
-                    camera.setScreen(new Screen(rR, camera.getScreen().focus));
-                    kernel.setCamera(camera);
-                    
-                }
-            }
-        };
-        this.getActionMap().put(CAMERAXMINUS, cameraXMinus);
-
-        this.getInputMap().put(
-                KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), CAMERAYPLUS);
-        Action cameraYPlus = new AbstractAction(CAMERAYPLUS) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                synchronized (camera) {
-                    Vector3D rT = camera.getTopRotatedVectors(-rotateStep);
-                    camera.setScreen(new Screen(rT, camera.getScreen().focus));
-                    kernel.setCamera(camera);
-                    
-                }
-            }
-        };
-        this.getActionMap().put(CAMERAYPLUS, cameraYPlus);
-
-        this.getInputMap().put(
-                KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), CAMERAYMINUS);
-        Action cameraYMinus = new AbstractAction(CAMERAYMINUS) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                synchronized (camera) {
-                    Vector3D rT = camera.getTopRotatedVectors(rotateStep);
-                    camera.setScreen(new Screen(rT, camera.getScreen().focus));
-                    kernel.setCamera(camera);
-                    
-                }
-            }
-        };
-        this.getActionMap().put(CAMERAYMINUS, cameraYMinus);
     }
-
-    private static final String CAMERAXPLUS = "CameraX+";
-
-    private static final String CAMERAXMINUS = "CameraX-";
-
-    private static final String CAMERAYPLUS = "CameraY+";
-
-    private static final String CAMERAYMINUS = "CameraY-";
 
     private static final String LEFT = "Left";
     private static final String RIGHT = "Right";
@@ -241,7 +210,7 @@ public class CanvasPanel extends JPanel {
 
     public KernelProcess kernel;
 
-    final BufferedImage image;
+    public BufferedImage image;
 
     public void prepare(){
         kernel = new KernelProcess(camera, 1156680, image);
@@ -275,8 +244,9 @@ public class CanvasPanel extends JPanel {
     protected void paintComponent(Graphics g2) {
         super.paintComponent(g2);
         synchronized (this) {
-            kernel.get();
             kernel.execute(kernel.count);
+
+            image = kernel.get();
 
             ((Graphics2D) g2).drawImage(image, null, 0, 0);
 //            g2.drawImage(image, 0, 0, (int)camera.getResolution().width, (int)camera.getResolution().height, 0, 0, (int)camera.getResolution().width, (int)camera.getResolution().height, this);

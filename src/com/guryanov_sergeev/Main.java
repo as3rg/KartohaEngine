@@ -9,6 +9,9 @@ import utils.throwables.ImpossiblePolygonException;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.lang.Math;
 import java.util.*;
 import java.util.List;
@@ -92,6 +95,21 @@ public class Main {
 //        frame.setFocusable(true);
         frame.setUndecorated(true);
         frame.setVisible(true);
+        frame.addMouseListener(new MouseAdapter() {
+            Point mousePoint;
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                super.mouseMoved(e);
+//                synchronized (camera) {
+//                    Vector3D rR = camera.getTopRotatedVectors(Math.PI*(e.getY()-canvas.getHeight()/2.0)/canvas.getHeight());
+//                    camera.setScreen(new Screen(rR, camera.getScreen().focus));
+//                    canvas.kernel.setCamera(camera, canvas.image);
+//
+//                }
+//                mousePoint = e.getPoint();
+            }
+        });
 
 //        new Thread(()-> {
 //            for (int i = 0; ;i = (i+1)%360 ) {

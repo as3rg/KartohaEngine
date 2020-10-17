@@ -57,30 +57,29 @@ public class Camera {
         this.bW = new Vector3D(bW.x*cos+bH.x*sin,bW.y*cos+bH.y*sin,bW.z*cos+bH.z*sin);
     }
 
-    public Vector3D getRightRotatedVectors(double r){
+    public Vector3D getRotatedVector(double r, double t){
         Pair<Vector3D, Vector3D> basises = getBasises(1, 1);
-        Vector3D bW = basises.getKey();
-        return getRotatedVector(bW, r);
+        Vector3D bH = basises.getValue(),
+                bW = basises.getKey();
+        Vector3D v1 = getRotatedVector(screen.vector, bW, r);
+        Vector3D v2 = getRotatedVector(v1, bH, t);
+        return v2;
     }
 
-    public Vector3D getTopRotatedVectors(double t) {
-        Pair<Vector3D, Vector3D> basises = getBasises(1, 1);
-        Vector3D bH = basises.getValue();
-        return getRotatedVector(bH, t);
-    }
-
-    private Vector3D getRotatedVector(Vector3D rotationVector, double a){
+    private Vector3D getRotatedVector(Vector3D v, Vector3D rotationVector, double a){
+        if(utils.Math.roundNearZero(a) == 0)
+            return v;
         Vector3D rVector = null;
-        double n = screen.vector.getLength();
+        double n = v.getLength();
 
         Point3D zero = new Point3D(0, 0, 0);
-        Plane3D plane3D = new Plane3D(zero, screen.vector.addToPoint(zero), rotationVector.addToPoint(zero));
+        Plane3D plane3D = new Plane3D(zero, v.addToPoint(zero), rotationVector.addToPoint(zero));
         double x = plane3D.vector.x, y = plane3D.vector.y, z = plane3D.vector.z;
 
         if (utils.Math.roundNearZero(x) != 0){
-            if (utils.Math.roundNearZero(screen.vector.y - screen.vector.x*y/x) != 0){
-                double k = utils.Math.roundNearZero(screen.vector.z - screen.vector.x*z/x)/(screen.vector.y - screen.vector.x*y/x),
-                        n2 = n*n*Math.cos(a)/(screen.vector.y - screen.vector.x*y/x);
+            if (utils.Math.roundNearZero(v.y - v.x*y/x) != 0){
+                double k = utils.Math.roundNearZero(v.z - v.x*z/x)/(v.y - v.x*y/x),
+                        n2 = n*n*Math.cos(a)/(v.y - v.x*y/x);
                 double a2 = Math.pow((z-y*k)/x, 2)+k*k+1,
                         b2 = 2*y*n2/(x*x)*(z-y*k)-2*n2*k,
                         c2 = Math.pow(y*n2/x, 2)+n2*n2-n*n;
@@ -95,9 +94,9 @@ public class Camera {
                 }else{
                     rVector = new Vector3D(xT2, yT2, zT2);
                 }
-            }else if (utils.Math.roundNearZero(screen.vector.z - screen.vector.x*z/x) != 0){
-                double k = utils.Math.roundNearZero(screen.vector.y - screen.vector.x*y/x)/(screen.vector.z - screen.vector.x*z/x),
-                        n2 = n*n*Math.cos(a)/(screen.vector.z - screen.vector.x*z/x);
+            }else if (utils.Math.roundNearZero(v.z - v.x*z/x) != 0){
+                double k = utils.Math.roundNearZero(v.y - v.x*y/x)/(v.z - v.x*z/x),
+                        n2 = n*n*Math.cos(a)/(v.z - v.x*z/x);
                 double a2 = Math.pow((y-z*k)/x, 2)+k*k+1,
                         b2 = 2*z*n2/(x*x)*(y-z*k)-2*n2*k,
                         c2 = Math.pow(z*n2/x, 2)+n2*n2-n*n;
@@ -114,9 +113,9 @@ public class Camera {
                 }
             }
         }else if (utils.Math.roundNearZero(y) != 0){
-            if (utils.Math.roundNearZero(screen.vector.x - screen.vector.y*x/y) != 0){
-                double k = utils.Math.roundNearZero(screen.vector.z - screen.vector.y*z/y)/(screen.vector.x - screen.vector.y*x/y),
-                        n2 = n*n*Math.cos(a)/(screen.vector.x - screen.vector.y*x/y);
+            if (utils.Math.roundNearZero(v.x - v.y*x/y) != 0){
+                double k = utils.Math.roundNearZero(v.z - v.y*z/y)/(v.x - v.y*x/y),
+                        n2 = n*n*Math.cos(a)/(v.x - v.y*x/y);
                 double a2 = Math.pow((z-x*k)/y, 2)+k*k+1,
                         b2 = 2*x*n2/(y*y)*(z-x*k)-2*n2*k,
                         c2 = Math.pow(x*n2/y, 2)+n2*n2-n*n;
@@ -131,9 +130,9 @@ public class Camera {
                 }else{
                     rVector = new Vector3D(xT2, yT2, zT2);
                 }
-            }else if (utils.Math.roundNearZero(screen.vector.z - screen.vector.y*z/y) != 0){
-                double k = utils.Math.roundNearZero(screen.vector.x - screen.vector.y*x/y)/(screen.vector.z - screen.vector.y*z/y),
-                        n2 = n*n*Math.cos(a)/(screen.vector.z - screen.vector.y*z/y);
+            }else if (utils.Math.roundNearZero(v.z - v.y*z/y) != 0){
+                double k = utils.Math.roundNearZero(v.x - v.y*x/y)/(v.z - v.y*z/y),
+                        n2 = n*n*Math.cos(a)/(v.z - v.y*z/y);
                 double a2 = Math.pow((x-z*k)/y, 2)+k*k+1,
                         b2 = 2*z*n2/(y*y)*(x-z*k)-2*n2*k,
                         c2 = Math.pow(z*n2/y, 2)+n2*n2-n*n;
@@ -150,9 +149,9 @@ public class Camera {
                 }
             }
         }else if (utils.Math.roundNearZero(z) != 0){
-            if (utils.Math.roundNearZero(screen.vector.y - screen.vector.z*y/z) != 0){
-                double k = utils.Math.roundNearZero(screen.vector.x - screen.vector.z*x/z)/(screen.vector.y - screen.vector.z*y/z),
-                        n2 = n*n*Math.cos(a)/(screen.vector.y - screen.vector.z*y/z);
+            if (utils.Math.roundNearZero(v.y - v.z*y/z) != 0){
+                double k = utils.Math.roundNearZero(v.x - v.z*x/z)/(v.y - v.z*y/z),
+                        n2 = n*n*Math.cos(a)/(v.y - v.z*y/z);
                 double a2 = Math.pow((x-y*k)/z, 2)+k*k+1,
                         b2 = 2*y*n2/(z*z)*(x-y*k)-2*n2*k,
                         c2 = Math.pow(y*n2/z, 2)+n2*n2-n*n;
@@ -167,9 +166,9 @@ public class Camera {
                 }else{
                     rVector = new Vector3D(xT2, yT2, zT2);
                 }
-            }else if (utils.Math.roundNearZero(screen.vector.x - screen.vector.z*x/z) != 0){
-                double k = utils.Math.roundNearZero(screen.vector.y - screen.vector.z*y/z)/(screen.vector.x - screen.vector.z*x/z),
-                        n2 = n*n*Math.cos(a)/(screen.vector.x - screen.vector.z*x/z);
+            }else if (utils.Math.roundNearZero(v.x - v.z*x/z) != 0){
+                double k = utils.Math.roundNearZero(v.y - v.z*y/z)/(v.x - v.z*x/z),
+                        n2 = n*n*Math.cos(a)/(v.x - v.z*x/z);
                 double a2 = Math.pow((y-x*k)/z, 2)+k*k+1,
                         b2 = 2*x*n2/(z*z)*(y-x*k)-2*n2*k,
                         c2 = Math.pow(x*n2/z, 2)+n2*n2-n*n;
@@ -187,6 +186,9 @@ public class Camera {
             }
         }
         assert rVector != null;
+        if(rVector.getLength() != rVector.getLength()){
+            System.out.println("NaN fuck!");
+        }
         return rVector;
     }
 

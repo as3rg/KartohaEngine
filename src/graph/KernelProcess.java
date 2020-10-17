@@ -18,11 +18,10 @@ public class KernelProcess extends Kernel {
     double[] depth;
     int[] colors;
     int count;
+    BufferedImage image;
 
     KernelProcess(Camera c, int count, BufferedImage image){
         this.count = count;
-        imageData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-        setCamera(c);
         x = new double[count*3];
         y = new double[count*3];
         z = new double[count*3];
@@ -50,27 +49,62 @@ public class KernelProcess extends Kernel {
         put(bufferZ);
 
 
+        this.focus = new double[3];
+        this.res = new double[2];
+        this.bW = new double[3];
+        this.bH = new double[3];
+        this.screenPoint = new double[3];
+        this.screenVector = new double[3];
+        depth = new double[(int)c.getResolution().height*(int)c.getResolution().width];
+
+        System.out.println((int)c.getResolution().height*(int)c.getResolution().width*Integer.BYTES);
+
+        setCamera(c, image);
         setExplicit(true);
 
     }
 
-    public void get(){
+    public BufferedImage get(){
         if(isExplicit()){
             get(imageData);
         }
+        return image;
     }
 
-    public void setCamera(Camera c){
-        this.focus = new double[]{c.getScreen().focus.x, c.getScreen().focus.y, c.getScreen().focus.z};
+    public void setCamera(Camera c, BufferedImage image){
+        this.focus[0] = c.getScreen().focus.x;
+        this.focus[1] = c.getScreen().focus.y;
+        this.focus[2] = c.getScreen().focus.z;
+
+
         Pair<Vector3D, Vector3D> basises = c.getBasises(c.getResolution().width / 2, c.getResolution().height / 2);
         Vector3D bW = basises.getKey(),
                 bH = basises.getValue();
-        this.res = new double[]{c.getResolution().width, c.getResolution().height};
-        this.bW = new double[]{bW.x, bW.y, bW.z};
-        this.bH = new double[]{bH.x, bH.y, bH.z};
-        this.screenPoint = new double[]{c.getScreen().point.x, c.getScreen().point.y,c.getScreen().point.z};
-        this.screenVector = new double[]{c.getScreen().vector.x, c.getScreen().vector.y, c.getScreen().vector.z};
-        depth = new double[(int)c.getResolution().height*(int)c.getResolution().width];
+
+
+        this.res[0] = c.getResolution().width;
+        this.res[1] = c.getResolution().height;
+
+        this.bW[0] = bW.x;
+        this.bW[1] = bW.y;
+        this.bW[2] = bW.z;
+
+
+        this.bH[0] = bH.x;
+        this.bH[1] = bH.y;
+        this.bH[2] = bH.z;
+
+        this.screenPoint[0] = c.getScreen().point.x;
+        this.screenPoint[1] = c.getScreen().point.y;
+        this.screenPoint[2] = c.getScreen().point.z;
+
+        this.screenVector[0] = c.getScreen().vector.x;
+        this.screenVector[1] = c.getScreen().vector.y;
+        this.screenVector[2] = c.getScreen().vector.z;
+//        depth = new double[(int)c.getResolution().height*(int)c.getResolution().width];
+
+        this.image = image;
+        imageData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         Arrays.fill(imageData, 0);
 
@@ -82,18 +116,6 @@ public class KernelProcess extends Kernel {
         put(screenPoint);
         put(screenVector);
         put(depth);
-    }
-    
-    public double min(double a, double b){
-        if(a<b)
-            return a;
-        return b;
-    }
-
-    public double max(double a, double b){
-        if(a>b)
-            return a;
-        return b;
     }
     
     public boolean inRegion(double r1x, double r1y, double r1z, double r2x, double r2y, double r2z, double x, double y, double z){
