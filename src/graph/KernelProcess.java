@@ -103,6 +103,8 @@ public class KernelProcess extends Kernel {
         this.screenVector[2] = c.getScreen().vector.z;
 //        depth = new double[(int)c.getResolution().height*(int)c.getResolution().width];
 
+        Arrays.fill(depth, Integer.MAX_VALUE);
+
         this.image = image;
         imageData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
@@ -316,7 +318,7 @@ public class KernelProcess extends Kernel {
                         p2fy = p2y - focus[1],
                         p2fz = p2z - focus[2];
                 double d = Math.sqrt(p2fx*p2fx+p2fy*p2fy+p2fz*p2fz);
-                if(p22Dx >= 0 && p22Dx < res[0] && p22Dy >= 0 && p22Dy < res[1]) {
+                if(p22Dx >= 0 && p22Dx < res[0] && p22Dy >= 0 && p22Dy < res[1] && depth[index] > d) {
                     imageData[index] = colors[gid];
                     depth[index] = d;
                 }

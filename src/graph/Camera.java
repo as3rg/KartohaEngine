@@ -186,9 +186,8 @@ public class Camera {
             }
         }
         assert rVector != null;
-        if(rVector.getLength() != rVector.getLength()){
-            System.out.println("NaN fuck!");
-        }
+        if(rVector.x == 0 && rVector.y == 0)
+            return v;
         return rVector;
     }
 
