@@ -59,9 +59,9 @@ public class Main {
 //        canvas.getDrawables().add(new Polygon3D(A2, B2, C2, Color.LIGHT_GRAY));
 //        canvas.getDrawables().add(new Polygon3D(new Point3D(0,0,0), new Point3D(0,0,50), new Point3D(0,50,50), Color.LIGHT_GRAY));
 
-        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 15));
-        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 15));
-        canvas.getDrawables().addAll(drawSphere(200, 0,0, 100, 15));
+        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 5));
+        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 5));
+        canvas.getDrawables().addAll(drawSphere(200, 0,0, 100, 5));
 
         canvas.prepare();
 //        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 1));
