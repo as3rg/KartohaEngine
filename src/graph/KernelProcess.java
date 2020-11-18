@@ -15,9 +15,10 @@ public class KernelProcess extends Kernel {
     double[] bufferX2D, bufferY2D;
     double[] bufferX, bufferY, bufferZ;
     int[] imageData;
+    int[] prefix, minX;
     double[] depth;
     int[] colors;
-    int count;
+    int count = 0;
     BufferedImage image;
 
     KernelProcess(Camera c, int count, BufferedImage image){
@@ -29,11 +30,13 @@ public class KernelProcess extends Kernel {
         resultX = new double[count];
         resultY = new double[count];
         resultZ = new double[count];
-        bufferX2D = new double[count];
-        bufferY2D = new double[count];
-        bufferX = new double[count];
-        bufferY = new double[count];
-        bufferZ = new double[count];
+        bufferX2D = new double[3*count];
+        bufferY2D = new double[3*count];
+        bufferX = new double[3*count];
+        bufferY = new double[3*count];
+        bufferZ = new double[3*count];
+        prefix = new int[count+1];
+        minX = new int[count];
 
         put(x);
         put(y);
@@ -47,6 +50,7 @@ public class KernelProcess extends Kernel {
         put(bufferX);
         put(bufferY);
         put(bufferZ);
+        put(minX);
 
 
 
@@ -105,6 +109,7 @@ public class KernelProcess extends Kernel {
 //        depth = new double[(int)c.getResolution().height*(int)c.getResolution().width];
 
         Arrays.fill(depth, Integer.MAX_VALUE);
+        Arrays.fill(prefix, 0);
 
         this.image = image;
         imageData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -119,6 +124,33 @@ public class KernelProcess extends Kernel {
         put(screenPoint);
         put(screenVector);
         put(depth);
+
+
+
+        int sum = 0;
+        for(int i = 0; i <= count; i++) {
+            prefix[i] = sum;
+            if(i < count) {
+                double minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
+                if (project(3*i, x[i * 3], y[i * 3], z[i * 3])) {
+                    minX = min(minX, bufferX2D[i*3]);
+                    maxX = max(maxX, bufferX2D[i*3]);
+                } else continue;
+                if (project(i*3+1, x[i * 3 + 1], y[i * 3 + 1], z[i * 3 + 1])) {
+                    minX = min(minX, bufferX2D[i*3+1]);
+                    maxX = max(maxX, bufferX2D[i*3+1]);
+                } else continue;
+                if (project(i*3+2, x[i * 3 + 2], y[i * 3 + 2], z[i * 3 + 2])) {
+                    minX = min(minX, bufferX2D[i*3+2]);
+                    maxX = max(maxX, bufferX2D[i*3+2]);
+                } else continue;
+
+                sum += ceil(maxX) - floor(minX);
+                this.minX[i] = (int)floor(minX);
+            }
+        }
+
+        put(prefix);
     }
     
     public boolean inRegion(double r1x, double r1y, double r1z, double r2x, double r2y, double r2z, double x, double y, double z){
@@ -275,97 +307,111 @@ public class KernelProcess extends Kernel {
 //        }
 //    }
 
+    public int getPolyIndex(int i){
+        int min = 0,
+            max = count;
+        while (max - min > 1){
+            int mid = (max+min)/2;
+            if(prefix[mid] > i){
+                max = mid;
+            }else{
+                min = mid;
+            }
+        }
+        return min;
+    }
+
+
     @Override
     public void run() {
-        int gid = getGlobalId();
+        run(getGlobalId());
+    }
+
+    public void run(int gid) {
+        int poly = getPolyIndex(gid);
+        int i = gid - prefix[poly] + minX[poly];
         double a1x = 0, a1y = 0, a1z = 0, a12Dx = 0, a12Dy = 0,
                 a2x = 0, a2y = 0, a2z = 0, a22Dx = 0, a22Dy = 0,
                 a3x = 0, a3y = 0, a3z = 0, a32Dx = 0, a32Dy = 0,
                 a1depth = 0, a2depth = 0, a3depth = 0;
-        if(project(gid, x[gid*3], y[gid*3], z[gid*3])) {
-            a1x = bufferX[gid];
-            a1y = bufferY[gid];
-            a1z = bufferZ[gid];
-            a12Dx = bufferX2D[gid];
-            a12Dy = bufferY2D[gid];
+        if (project(3 * poly, x[poly * 3], y[poly * 3], z[poly * 3])) {
+            a1x = bufferX[3 * poly];
+            a1y = bufferY[3 * poly];
+            a1z = bufferZ[3 * poly];
+            a12Dx = bufferX2D[3 * poly];
+            a12Dy = bufferY2D[3 * poly];
             a1depth = getDistance3D(a1x, a1y, a1z, focus[0], focus[1], focus[2]);
-        }else return;
-        if(project(gid, x[gid*3+1], y[gid*3+1], z[gid*3+1])) {
-            a2x = bufferX[gid];
-            a2y = bufferY[gid];
-            a2z = bufferZ[gid];
-            a22Dx = bufferX2D[gid];
-            a22Dy = bufferY2D[gid];
+        } else return;
+        if (project(poly * 3 + 1, x[poly * 3 + 1], y[poly * 3 + 1], z[poly * 3 + 1])) {
+            a2x = bufferX[poly * 3 + 1];
+            a2y = bufferY[poly * 3 + 1];
+            a2z = bufferZ[poly * 3 + 1];
+            a22Dx = bufferX2D[poly * 3 + 1];
+            a22Dy = bufferY2D[poly * 3 + 1];
             a2depth = getDistance3D(a2x, a2y, a2z, focus[0], focus[1], focus[2]);
-        }else return;
-        if(project(gid, x[gid*3+2], y[gid*3+2], z[gid*3+2])) {
-            a3x = bufferX[gid];
-            a3y = bufferY[gid];
-            a3z = bufferZ[gid];
-            a32Dx = bufferX2D[gid];
-            a32Dy = bufferY2D[gid];
+        } else return;
+        if (project(poly * 3 + 2, x[poly * 3 + 2], y[poly * 3 + 2], z[poly * 3 + 2])) {
+            a3x = bufferX[poly * 3 + 2];
+            a3y = bufferY[poly * 3 + 2];
+            a3z = bufferZ[poly * 3 + 2];
+            a32Dx = bufferX2D[poly * 3 + 2];
+            a32Dy = bufferY2D[poly * 3 + 2];
             a3depth = getDistance3D(a3x, a3y, a3z, focus[0], focus[1], focus[2]);
-        }else return;
+        } else return;
 
-
-        int minX = (int)floor(min(a12Dx, min(a22Dx, a32Dx))),
-                maxX = (int)ceil(max(a12Dx, max(a22Dx, a32Dx)));
-        minX = (int)max(0, min(res[0], minX));
-        maxX = (int)max(0, min(res[0], maxX));
-        for(int i = minX; i <= maxX; i++){
-            double maxPointY = 0, maxPointDepth = -1, minPointY = 0, minPointDepth = -1;
-            if(i >= min(a22Dx, a12Dx) && i <= max(a22Dx, a12Dx)){
-                double y = getValue(a12Dx, a12Dy, a22Dx, a22Dy, i),
+        double maxPointY = 0, maxPointDepth = -1, minPointY = 0, minPointDepth = -1;
+        if (i >= min(a22Dx, a12Dx) && i <= max(a22Dx, a12Dx)) {
+            double y = getValue(a12Dx, a12Dy, a22Dx, a22Dy, i),
                     dis = getDistance2D(a12Dx, a12Dy, a22Dx, a22Dy);
-                if(dis != 0 && (maxPointDepth == -1 || y > maxPointY)){
-                    maxPointY = y;
-                    maxPointDepth = getDepth(a1depth, a2depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
-                }
-                if(dis != 0 && (minPointDepth == -1 || y < minPointY)){
-                    minPointY = y;
-                    minPointDepth = getDepth(a1depth, a2depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
-                }
+            if (dis != 0 && (maxPointDepth == -1 || y > maxPointY)) {
+                maxPointY = y;
+                maxPointDepth = getDepth(a1depth, a2depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
             }
-            if(i >= min(a22Dx, a32Dx) && i <= max(a22Dx, a32Dx)){
-                double y = getValue(a32Dx, a32Dy, a22Dx, a22Dy, i),
-                        dis = getDistance2D(a32Dx, a32Dy, a22Dx, a22Dy);
-                if(dis != 0 && (maxPointDepth == -1 || y > maxPointY)){
-                    maxPointY = y;
-                    maxPointDepth = getDepth(a3depth, a2depth, dis, getDistance2D(a32Dx, a32Dy, i, y));
-                }
-                if(dis != 0 && (minPointDepth == -1 || y < maxPointY)){
-                    minPointY = y;
-                    minPointDepth = getDepth(a3depth, a2depth, dis, getDistance2D(a32Dx, a32Dy, i, y));
-                }
+            if (dis != 0 && (minPointDepth == -1 || y < minPointY)) {
+                minPointY = y;
+                minPointDepth = getDepth(a1depth, a2depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
             }
-            if(i >= min(a32Dx, a12Dx) && i <= max(a32Dx, a12Dx)){
-                double y = getValue(a12Dx, a12Dy, a32Dx, a32Dy, i),
-                        dis = getDistance2D(a12Dx, a12Dy, a32Dx, a32Dy);
-                if(dis != 0 && (maxPointDepth == -1 || y > maxPointY)){
-                    maxPointY = y;
-                    maxPointDepth = getDepth(a1depth, a3depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
-                }
-                if(dis != 0 && (minPointDepth == -1 || y < minPointY)){
-                    minPointY = y;
-                    minPointDepth = getDepth(a1depth, a3depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
-                }
-            }
-
-            if(maxPointDepth != -1 && minPointDepth != -1)
-                maxPointY = max(0, min(res[1], maxPointY));
-                minPointY = max(0, min(res[1], minPointY));
-                for(int j = (int)floor(minPointY); j <= (int)ceil(maxPointY); j++){
-                    double d = getDepth(minPointDepth, maxPointDepth, maxPointY-minPointY, j-minPointY);
-                    int index = j*(int)res[0]+i;
-                    if(i >= 0 && i < res[0] && j >= 0 && j < res[1] && d < depth[index]) {
-                        imageData[index] = colors[gid];
-                        depth[index] = d;
-                    }
-                }
         }
+        if (i >= min(a22Dx, a32Dx) && i <= max(a22Dx, a32Dx)) {
+            double y = getValue(a32Dx, a32Dy, a22Dx, a22Dy, i),
+                    dis = getDistance2D(a32Dx, a32Dy, a22Dx, a22Dy);
+            if (dis != 0 && (maxPointDepth == -1 || y > maxPointY)) {
+                maxPointY = y;
+                maxPointDepth = getDepth(a3depth, a2depth, dis, getDistance2D(a32Dx, a32Dy, i, y));
+            }
+            if (dis != 0 && (minPointDepth == -1 || y < maxPointY)) {
+                minPointY = y;
+                minPointDepth = getDepth(a3depth, a2depth, dis, getDistance2D(a32Dx, a32Dy, i, y));
+            }
+        }
+        if (i >= min(a32Dx, a12Dx) && i <= max(a32Dx, a12Dx)) {
+            double y = getValue(a12Dx, a12Dy, a32Dx, a32Dy, i),
+                    dis = getDistance2D(a12Dx, a12Dy, a32Dx, a32Dy);
+            if (dis != 0 && (maxPointDepth == -1 || y > maxPointY)) {
+                maxPointY = y;
+                maxPointDepth = getDepth(a1depth, a3depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
+            }
+            if (dis != 0 && (minPointDepth == -1 || y < minPointY)) {
+                minPointY = y;
+                minPointDepth = getDepth(a1depth, a3depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
+            }
+        }
+
+        if (maxPointDepth != -1 && minPointDepth != -1) {
+//            maxPointY = max(0, min(res[1], maxPointY));
+//        minPointY = max(0, min(res[1], minPointY));
+            for (int j = (int) floor(minPointY); j <= (int) ceil(maxPointY); j++) {
+                double d = getDepth(minPointDepth, maxPointDepth, maxPointY - minPointY, j - minPointY);
+                int index = j * (int) res[0] + i;
+                if (i >= 0 && i < res[0] && j >= 0 && j < res[1] && d < depth[index]) {
+                    imageData[index] = colors[poly];
+                    depth[index] = d;
+                }
 
 //                v23Len = Math.sqrt(v23x*v23x + v23y*v23y + v23z*v23z);
 
+            }
+        }
     }
 
 //    @Override

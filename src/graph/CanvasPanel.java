@@ -1,6 +1,7 @@
 package graph;
 
 import com.aparapi.Kernel;
+import geometry.objects2D.Point2D;
 import geometry.objects3D.Point3D;
 import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
@@ -10,6 +11,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class CanvasPanel extends JPanel {
@@ -230,6 +232,7 @@ public class CanvasPanel extends JPanel {
             kernel.x[3*i+2] = p.a3.x;
             kernel.y[3*i+2] = p.a3.y;
             kernel.z[3*i+2] = p.a3.z;
+
             i++;
         }
         kernel.count = i;
@@ -244,7 +247,12 @@ public class CanvasPanel extends JPanel {
     protected void paintComponent(Graphics g2) {
         super.paintComponent(g2);
         synchronized (this) {
-            kernel.execute(kernel.count);
+            if(kernel.count != 0 && kernel.prefix[kernel.count] != 0)
+                kernel.execute(kernel.prefix[kernel.count]);
+//                for (int i = 0; i < kernel.prefix[kernel.count]; i++){
+//                    kernel.run(i);
+//                }
+            else System.out.println("fuck");
 
             image = kernel.get();
 
