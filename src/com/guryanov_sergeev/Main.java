@@ -61,8 +61,8 @@ public class Main {
 
         canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 5));
 //        canvas.getDrawables().add(new Polygon3D(new Point3D(-100, 0, 0), new Point3D(-100, -20, -20), new Point3D(-100, -20, 0), Color.RED));
-//        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 15));
-//        canvas.getDrawables().addAll(drawSphere(200, 0,0, 100, 15));
+        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 5));
+        canvas.getDrawables().addAll(drawSphere(200, 0,0, 100, 5));
 
         canvas.prepare();
 //        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 1));

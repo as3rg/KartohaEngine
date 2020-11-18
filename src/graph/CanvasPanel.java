@@ -1,6 +1,8 @@
 package graph;
 
 import com.aparapi.Kernel;
+import com.aparapi.Range;
+import com.aparapi.device.Device;
 import geometry.objects2D.Point2D;
 import geometry.objects3D.Point3D;
 import geometry.objects3D.Polygon3D;
@@ -248,12 +250,10 @@ public class CanvasPanel extends JPanel {
         super.paintComponent(g2);
         synchronized (this) {
             if(kernel.count != 0 && kernel.prefix[kernel.count] != 0)
-                kernel.execute(kernel.prefix[kernel.count]);
+                kernel.execute(Range.create(Device.bestGPU(),(int)Math.ceil(kernel.prefix[kernel.count]/128.0)*128, 128));
 //                for (int i = 0; i < kernel.prefix[kernel.count]; i++){
 //                    kernel.run(i);
 //                }
-            else System.out.println("fuck");
-
             image = kernel.get();
 
             ((Graphics2D) g2).drawImage(image, null, 0, 0);
