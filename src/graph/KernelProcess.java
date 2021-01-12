@@ -17,16 +17,16 @@ public class KernelProcess extends Kernel {
     double[] resultX, resultY, resultZ, x, y, z, x2D, y2D, d, polyVectorX, polyVectorY, polyVectorZ;
     double[] bufferX2D, bufferY2D;
     double[] bufferX, bufferY, bufferZ;
-    int[] imageData, bounds;
+    int[] imageData, bounds, bounds2;
     int[] prefix, minX;
     double[] depth;
     int[] colors;
-    int count = 0;
+    int count, prefixSumSize, prefixSumStep;
     boolean[] projectFlag;
     BufferedImage image;
     private int mode;
 
-    private static final int CALC = 0, PREPARE = 1, BOUNDS = 2;
+    private static final int CALC = 0, PREPARE = 1, BOUNDS = 2, HALVE = 3, ADD = 4, COPY = 5;
 
     int maxCount = 1156680;
     KernelProcess(Camera c, BufferedImage image){
@@ -52,6 +52,7 @@ public class KernelProcess extends Kernel {
         minX = new int[maxCount];
         projectFlag = new boolean[3*maxCount];
         bounds = new int[maxCount];
+        bounds2 = new int[maxCount];
 
         put(resultX);
         put(resultY);
@@ -71,8 +72,6 @@ public class KernelProcess extends Kernel {
         this.screenVector = new double[3];
         depth = new double[(int)c.getResolution().height*(int)c.getResolution().width];
         d = new double[maxCount*3];
-
-//        System.out.println((int)c.getResolution().height*(int)c.getResolution().width*Integer.BYTES);
 
         setCamera(c, image);
         setExplicit(true);
@@ -149,11 +148,11 @@ public class KernelProcess extends Kernel {
         this.screenVector[0] = c.getScreen().vector.x;
         this.screenVector[1] = c.getScreen().vector.y;
         this.screenVector[2] = c.getScreen().vector.z;
-//        depth = new double[(int)c.getResolution().height*(int)c.getResolution().width];
 
         Arrays.fill(depth, Integer.MAX_VALUE);
         Arrays.fill(x2D, Integer.MAX_VALUE);
         Arrays.fill(d, -1);
+        Arrays.fill(prefix, 0);
 
         this.image = image;
         imageData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -170,9 +169,11 @@ public class KernelProcess extends Kernel {
         put(depth);
         put(d);
         put(bounds);
+        put(bounds2);
         put(minX);
         put(x2D);
         put(y2D);
+        put(prefix);
 
         mode = PREPARE;
         execute(3*count);
@@ -180,17 +181,27 @@ public class KernelProcess extends Kernel {
         mode = BOUNDS;
         execute(count);
 
-        int sum = 0;
-        for(int i = 0; i <= count; i++) {
-            prefix[i] = sum;
-            if(i < count) {
-                sum += bounds[i];
-            }
+        prefixSumSize = count;
+        prefixSumStep = 0;
+        mode = ADD;
+        execute(count+1);
+        prefixSumStep++;
+        while (prefixSumSize > 1) {
+            int prefixSumSize2 = (int)ceil(prefixSumSize/2.0);
+            mode = HALVE;
+            execute(prefixSumSize2);
+
+            mode = COPY;
+            execute(prefixSumSize2);
+
+            mode = ADD;
+            execute(count+1);
+
+            prefixSumSize = prefixSumSize2;
+            prefixSumStep++;
         }
 
         mode = CALC;
-
-        put(prefix);
     }
     
     public boolean inRegion(double r1x, double r1y, double r1z, double r2x, double r2y, double r2z, double x, double y, double z){
@@ -320,32 +331,7 @@ public class KernelProcess extends Kernel {
         }
         return false;
     }
-//
-//    public void draw() {
-//        Optional<Point2D> a12D = project(a1),
-//                a22D = project(a2),
-//                a32D = project(a3);
-//        if (!a12D.isPresent() || !a22D.isPresent() || !a32D.isPresent() || !new Polygon2D(a12D.get(), a22D.get(), a32D.get(), color).getRegion().crosses(new Region2D(new Point2D(0, 0), new Point2D(camera.getResolution().width, camera.getResolution().height))))
-//            return;
-//
-////        cp.set((int) a12D.get().x, (int) a12D.get().y, new Pixel(1, color));
-////        cp.set((int) a22D.get().x, (int) a22D.get().y, new Pixel(1, color));
-////        cp.set((int) a32D.get().x, (int) a32D.get().y, new Pixel(1, color));
-////        new Polygon2D(a12D.get(), a22D.get(), a32D.get(), color).draw(cp, camera);
-//        Vector2D v232D = new Vector2D(a22D.get(), a32D.get());
-//        Vector3D v23 = new Vector3D(a2, a3);
-//        for (double j = 0; j <= v232D.getLength(); j += 0.5) {
-//            Point3D p = v23.multiply(j / v232D.getLength()).addToPoint(a2);
-//            Vector3D v1p = new Vector3D(a1, p);
-//            Point2D p2D = v232D.multiply(j / v232D.getLength()).addToPoint(a22D.get());
-//            Vector2D v1p2D = new Vector2D(a12D.get(), p2D);
-//            for (double i = 0; i <= v1p2D.getLength(); i += 0.5) {
-//                Point3D p2 = v1p.multiply(i / v1p2D.getLength()).addToPoint(a1);
-//                Point2D p22D = v1p2D.multiply(i / v1p2D.getLength()).addToPoint(a12D.get());
-//                cp.set((int) p22D.x, (int) p22D.y, new Pixel(new Vector3D(camera.getScreen().focus, p2).getLength(), color));
-//            }
-//        }
-//    }
+
 
     public int getPolyIndex(int i){
         int min = 0,
@@ -370,6 +356,30 @@ public class KernelProcess extends Kernel {
             calc(getGlobalId());
         else if(mode == BOUNDS)
             bounds(getGlobalId());
+        else if(mode == ADD)
+            add(getGlobalId());
+        else if(mode == HALVE)
+            halve(getGlobalId());
+        else if(mode == COPY)
+            copy(getGlobalId());
+    }
+
+    public void copy(int gid){
+        bounds[gid] = bounds2[gid];
+    }
+
+    public void halve(int gid) {
+        bounds2[gid] = bounds[2 * gid];
+        if (prefixSumSize > 2 * gid + 1) {
+            bounds2[gid] += bounds[2 * gid + 1];
+        }
+    }
+
+    public void add(int gid) {
+        int mask = 1<<prefixSumStep;
+        if((mask&gid) == mask && gid > 0) {
+            prefix[gid] += bounds[gid/mask-1];
+        }
     }
 
     public void prepare(int gid){
@@ -391,10 +401,7 @@ public class KernelProcess extends Kernel {
         imageData[(int)((res[1]/2+0.5)*res[0])] = 0x0000ff;
         if(poly < count) {
             int i = gid - prefix[poly] + minX[poly];
-            double a1x = x[3 * poly], a1y = y[3 * poly], a1z = z[3 * poly],
-                    a2x = x[poly * 3 + 1], a2y = y[poly * 3 + 1], a2z = z[poly * 3 + 1],
-                    a3x = x[poly * 3 + 2], a3y = y[poly * 3 + 2], a3z = z[poly * 3 + 2],
-                    a12Dx = x2D[3 * poly], a12Dy = y2D[3 * poly],
+            double a12Dx = x2D[3 * poly], a12Dy = y2D[3 * poly],
                     a22Dx = x2D[3 * poly+1], a22Dy = y2D[3 * poly+1],
                     a32Dx = x2D[3 * poly+2], a32Dy = y2D[3 * poly+2],
                     a1depth = d[3*poly], a2depth = d[3*poly+1], a3depth = d[3*poly+2];
@@ -444,66 +451,17 @@ public class KernelProcess extends Kernel {
             }
 
             if (maxPointDepth != -1 && minPointDepth != -1) {
-//            maxPointY = max(0, min(res[1], maxPointY));
-//        minPointY = max(0, min(res[1], minPointY));
                 int minBound = (int) floor(max(0, min(res[1], minPointY))),
                         maxBound = (int) ceil(max(0, min(res[1], maxPointY)));
                 for (int j = minBound; j <= maxBound; j++) {
                     double d = getDepth(minPointDepth, maxPointDepth, maxPointY - minPointY, j - minPointY);
                     int index = j * (int) res[0] + i;
                     if (i >= 0 && i < res[0] && j >= 0 && j < res[1] && d < depth[index]) {
-                        double lx = (2*i/res[0]-1)*bW[0]+(1-2*j/res[1])*bH[0]+screenVector[0];
-                        double ly = (2*i/res[0]-1)*bW[1]+(1-2*j/res[1])*bH[1]+screenVector[1];
-                        double lz = (2*i/res[0]-1)*bW[2]+(1-2*j/res[1])*bH[2]+screenVector[2];
-
-                        int color = colors[poly];
-                        Color c = new Color(color);
-                        double cos1 = abs((lx*polyVectorX[poly]+ly*polyVectorY[poly]+lz*polyVectorZ[poly])
-                                / getDistance3D(0,0,0,lx,ly,lz)
-                                / getDistance3D(0,0,0,polyVectorX[poly],polyVectorY[poly],polyVectorZ[poly]));
-//                        coeff =sqrt(1-coeff*coeff);
-                        int b = c.getBlue();
-                        color/=256;
-                        int g = c.getGreen();
-                        color/=256;
-                        int r = c.getRed();
-                        color/=256;
-                        b = (int)(b*cos1);
-                        r = (int)(r*cos1);
-                        g = (int)(g*cos1);
-                        c = new Color(r,g,b);
-////                        if(coeff < 0.25 && (r < 50 || g < 50 || b < 50))
-////                            System.out.println("hm");
-                        imageData[index] = c.getRGB();
+                        imageData[index] = colors[poly];
                         depth[index] = d;
                     }
-
-//                v23Len = Math.sqrt(v23x*v23x + v23y*v23y + v23z*v23z);
-
                 }
             }
         }
     }
-
-//    @Override
-//    public void run() {
-//        int gid = getGlobalId();
-//        int r = colors[gid*3],
-//                g = colors[gid*3+1],
-//                b = colors[gid*3+2];
-//        if(project(gid, x[gid*3], y[gid*3], z[gid*3]) && bufferX2D[gid] >= 0 && bufferX2D[gid] < res[0] && bufferY2D[gid] >= 0 && bufferY2D[gid] <= res[1]) {
-//            int i = (int)bufferY2D[gid]*(int)res[0]+(int)bufferX2D[gid];
-//            imageData[i]=r*256*256+g*256+b;
-////            result[3*i+1]=g;
-////            result[3*i+2]=b;
-//        }
-//        if(project(gid, x[gid*3+1], y[gid*3+1], z[gid*3+1]) && bufferX2D[gid] >= 0 && bufferX2D[gid] < res[0] && bufferY2D[gid] >= 0 && bufferY2D[gid] <= res[1]) {
-//            int i = (int)bufferY2D[gid]*(int)res[0]+(int)bufferX2D[gid];
-//            imageData[i]=r*256*256+g*256+b;
-//        }
-//        if(project(gid, x[gid*3+2], y[gid*3+2], z[gid*3+2]) && bufferX2D[gid] >= 0 && bufferX2D[gid] < res[0] && bufferY2D[gid] >= 0 && bufferY2D[gid] <= res[1]) {
-//            int i = (int)bufferY2D[gid]*(int)res[0]+(int)bufferX2D[gid];
-//            imageData[i]=r*256*256+g*256+b;
-//        }
-//    }
 }

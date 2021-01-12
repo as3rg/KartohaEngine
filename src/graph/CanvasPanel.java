@@ -1,15 +1,15 @@
 package graph;
 
 import com.aparapi.Kernel;
-import com.guryanov_sergeev.Main;
 import geometry.objects3D.Point3D;
-import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
-import javafx.scene.input.KeyCode;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
@@ -62,20 +62,7 @@ public class CanvasPanel extends JFrame implements KeyListener {
         });
 
     }
-
-    private static final String LEFT = "Left";
-    private static final String RIGHT = "Right";
-
-    private static final String FORWARD = "Forward";
-    private static final String BACK = "Back";
-
-    private static final String UP = "Up";
-    private static final String DOWN = "Down";
-
-
     private static final double rotateStep = Math.PI / 180;
-    private static final String ROTATEPLUS = "Rotate+";
-    private static final String ROTATEMINUS = "Rotate-";
     private final double step = 10;
 
     private final Set<Drawable> drawables = new HashSet<>();
@@ -94,37 +81,28 @@ public class CanvasPanel extends JFrame implements KeyListener {
     public long frames;
     double fps = 0;
 
-    int i = 0;
-
     @Override
     public void paint(Graphics g) {
-//        super.paint(g);
 
-        getDrawables().clear();
-        getDrawables().addAll(Main.drawSphere(-100 + 10 * Math.cos(i), 10 * Math.sin(i), 0, 100, 5, Color.RED));
         kernel.setDrawables(getDrawables());
         kernel.setCamera(camera, image);
-        i++;
 
-        BufferStrategy bufferStrategy = getBufferStrategy();        // Обращаемся к стратегии буферизации
-        if (bufferStrategy == null) {                               // Если она еще не создана
-            createBufferStrategy(2);                                // то создаем ее
-            bufferStrategy = getBufferStrategy();                   // и опять обращаемся к уже наверняка созданной стратегии
+        BufferStrategy bufferStrategy = getBufferStrategy();
+        if (bufferStrategy == null) {
+            createBufferStrategy(2);
+            bufferStrategy = getBufferStrategy();
         }
-        Graphics g2 = bufferStrategy.getDrawGraphics();                       // Достаем текущую графику (текущий буфер)
-        g2.setColor(getBackground());                                // Выставялем цвет в цвет фона
+        Graphics g2 = bufferStrategy.getDrawGraphics();
+        g2.setColor(getBackground());
         g2.fillRect(0, 0, getWidth(), getHeight());
 
         if (kernel.count != 0 && kernel.prefix[kernel.count] != 0)
-//                kernel.execute(Range.create(Device.bestGPU(),(int)Math.ceil(kernel.prefix[kernel.count]/128.0)*128, 128));
             for (int i = 0; i < kernel.prefix[kernel.count]; i++) {
                 kernel.calc(i);
             }
         image = kernel.get();
 
         ((Graphics2D) g2).drawImage(image, null, 0, 0);
-//            g2.drawImage(image, 0, 0, (int)camera.getResolution().width, (int)camera.getResolution().height, 0, 0, (int)camera.getResolution().width, (int)camera.getResolution().height, this);
-
         final long now = System.currentTimeMillis();
 
         frames++;
