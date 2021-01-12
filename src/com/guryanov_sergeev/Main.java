@@ -59,10 +59,12 @@ public class Main {
 //        canvas.getDrawables().add(new Polygon3D(A2, B2, C2, Color.LIGHT_GRAY));
 //        canvas.getDrawables().add(new Polygon3D(new Point3D(0,0,0), new Point3D(0,0,50), new Point3D(0,50,50), Color.LIGHT_GRAY));
 
-        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 1));
-//        canvas.getDrawables().add(new Polygon3D(new Point3D(-100, 0, 0), new Point3D(-100, -20, -20), new Point3D(-100, -20, 0), Color.RED));
-        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 1));
-        canvas.getDrawables().addAll(drawSphere(200, 0,0, 100, 1));
+//        canvas.getDrawables().addAll(drawSphere(-100, 0,0, 100, 5));
+//        canvas.getDrawables().add(new Polygon3D(new Point3D(0, 0, 0), new Point3D(-20, 0,0), new Point3D(-20, 20, 0), Color.RED));
+//        canvas.getDrawables().add(new Polygon3D(new Point3D(0, 0, 0), new Point3D(-20, 0,0), new Point3D(-20, 20,20), Color.GRAY));
+//        canvas.getDrawables().add(new Polygon3D(new Point3D(0,-100, 0), new Point3D(-100, -20, -20), new Point3D(-100, -20, 0), Color.GRAY));
+//        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 5));
+//        canvas.getDrawables().addAll(drawSphere(200, 0,0, 100, 5));
 
         canvas.prepare();
 //        canvas.getDrawables().addAll(drawSphere(100, 0,0, 100, 1));
@@ -85,18 +87,14 @@ public class Main {
 //            p = new Line3D(p1.a3, p1.a2).getIntersection(line.get());
 //            p.ifPresent(point3D -> canvas.getDrawables().add(point3D));
 //        });
-
-        JFrame frame = new JFrame();
-
-        frame.getContentPane().add(canvas, BorderLayout.CENTER);
-        frame.setSize(1920, 1080);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(false);
-//        frame.setFocusable(true);
-        frame.setUndecorated(true);
-        frame.setVisible(true);
-        frame.addMouseListener(new MouseAdapter() {
+        canvas.setSize(1920, 1080);
+        canvas.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        canvas.setLocationRelativeTo(null);
+        canvas.setResizable(false);
+//        canvas.setFocusable(true);
+        canvas.setUndecorated(true);
+        canvas.setVisible(true);
+        canvas.addMouseListener(new MouseAdapter() {
             Point mousePoint;
 
             @Override
@@ -136,7 +134,7 @@ public class Main {
         }).start();
     }
 
-    public static Collection<Drawable> drawSphere(double x, double y, double z, double R, int step){
+    public static Collection<Drawable> drawSphere(double x, double y, double z, double R, int step, Color c){
         Set<Drawable> drawableSet = new HashSet<>();
         java.util.List<java.util.List<Point3D>> C = new ArrayList<>();
         for (int j = 0; j < 360; j+= step) {
@@ -148,7 +146,6 @@ public class Main {
         }
         //System.out.println(360*360/step/step+" points");
         Random r = new Random();
-        Color c = new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256), 255);
         for(int j = 0; j < 180/step -1; j++) {
             List<Point3D> A = C.get(j), B = C.get(j+1);
             for (int i = 0; i < 360/step; i += 1) {
@@ -156,7 +153,7 @@ public class Main {
                 try{ drawableSet.add(new Polygon3D(A.get(i), B.get(i), B.get((i + 1) % (360/step)), c)); } catch (ImpossiblePolygonException ignored){}
             }
         }
-        System.out.println(drawableSet.size()+" polygons");
+//        System.out.println(drawableSet.size()+" polygons");
         return drawableSet;
     }
 

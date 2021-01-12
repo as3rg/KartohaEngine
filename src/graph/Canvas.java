@@ -1,10 +1,5 @@
 package graph;
 
-import geometry.objects2D.Point2D;
-import geometry.objects2D.Vector2D;
-import geometry.objects3D.Point3D;
-import sun.security.util.Cache;
-
 public class Canvas {
 
     private final Camera.Resolution resolution;

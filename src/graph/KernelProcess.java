@@ -1,47 +1,58 @@
 package graph;
 
 import com.aparapi.Kernel;
+import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
 import javafx.util.Pair;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Arrays;
+import java.util.Set;
 
 public class KernelProcess extends Kernel {
 
     double[] focus, screenVector, screenPoint, bH, bW, res;
-    double[] resultX, resultY, resultZ, x, y, z;
+    double[] resultX, resultY, resultZ, x, y, z, x2D, y2D, d, polyVectorX, polyVectorY, polyVectorZ;
     double[] bufferX2D, bufferY2D;
     double[] bufferX, bufferY, bufferZ;
-    int[] imageData;
+    int[] imageData, bounds;
     int[] prefix, minX;
     double[] depth;
     int[] colors;
     int count = 0;
+    boolean[] projectFlag;
     BufferedImage image;
+    private int mode;
 
-    KernelProcess(Camera c, int count, BufferedImage image){
-        this.count = count;
-        x = new double[count*3];
-        y = new double[count*3];
-        z = new double[count*3];
-        colors = new int[count];
-        resultX = new double[count];
-        resultY = new double[count];
-        resultZ = new double[count];
-        bufferX2D = new double[3*count];
-        bufferY2D = new double[3*count];
-        bufferX = new double[3*count];
-        bufferY = new double[3*count];
-        bufferZ = new double[3*count];
-        prefix = new int[count+1];
-        minX = new int[count];
+    private static final int CALC = 0, PREPARE = 1, BOUNDS = 2;
 
-        put(x);
-        put(y);
-        put(z);
-        put(colors);
+    int maxCount = 1156680;
+    KernelProcess(Camera c, BufferedImage image){
+        this.count = 0;
+        x = new double[maxCount*3];
+        y = new double[maxCount*3];
+        z = new double[maxCount*3];
+        polyVectorX = new double[maxCount];
+        polyVectorY = new double[maxCount];
+        polyVectorZ = new double[maxCount];
+        x2D = new double[maxCount*3];
+        y2D = new double[maxCount*3];
+        colors = new int[maxCount];
+        resultX = new double[maxCount];
+        resultY = new double[maxCount];
+        resultZ = new double[maxCount];
+        bufferX2D = new double[3*maxCount];
+        bufferY2D = new double[3*maxCount];
+        bufferX = new double[3*maxCount];
+        bufferY = new double[3*maxCount];
+        bufferZ = new double[3*maxCount];
+        prefix = new int[maxCount+1];
+        minX = new int[maxCount];
+        projectFlag = new boolean[3*maxCount];
+        bounds = new int[maxCount];
+
         put(resultX);
         put(resultY);
         put(resultZ);
@@ -50,8 +61,7 @@ public class KernelProcess extends Kernel {
         put(bufferX);
         put(bufferY);
         put(bufferZ);
-
-
+        put(projectFlag);
 
         this.focus = new double[3];
         this.res = new double[2];
@@ -60,8 +70,9 @@ public class KernelProcess extends Kernel {
         this.screenPoint = new double[3];
         this.screenVector = new double[3];
         depth = new double[(int)c.getResolution().height*(int)c.getResolution().width];
+        d = new double[maxCount*3];
 
-        System.out.println((int)c.getResolution().height*(int)c.getResolution().width*Integer.BYTES);
+//        System.out.println((int)c.getResolution().height*(int)c.getResolution().width*Integer.BYTES);
 
         setCamera(c, image);
         setExplicit(true);
@@ -75,6 +86,41 @@ public class KernelProcess extends Kernel {
         return image;
     }
 
+    public void setDrawables(Set<Drawable> drawables){
+        int i = 0;
+        for(Drawable d : drawables) {
+            Polygon3D p = (Polygon3D) d;
+            colors[i] = p.color.getRGB();
+
+            Vector3D v = p.getPlane().vector;
+            polyVectorX[i] = v.x;
+            polyVectorY[i] = v.y;
+            polyVectorZ[i] = v.z;
+
+            x[3*i] = p.a1.x;
+            y[3*i] = p.a1.y;
+            z[3*i] = p.a1.z;
+
+            x[3*i+1] = p.a2.x;
+            y[3*i+1] = p.a2.y;
+            z[3*i+1] = p.a2.z;
+
+            x[3*i+2] = p.a3.x;
+            y[3*i+2] = p.a3.y;
+            z[3*i+2] = p.a3.z;
+
+            i++;
+        }
+        count = drawables.size();
+        put(x);
+        put(y);
+        put(z);
+        put(polyVectorX);
+        put(polyVectorY);
+        put(polyVectorZ);
+        put(colors);
+    }
+
     public void setCamera(Camera c, BufferedImage image){
         this.focus[0] = c.getScreen().focus.x;
         this.focus[1] = c.getScreen().focus.y;
@@ -85,14 +131,12 @@ public class KernelProcess extends Kernel {
         Vector3D bW = basises.getKey(),
                 bH = basises.getValue();
 
-
         this.res[0] = c.getResolution().width;
         this.res[1] = c.getResolution().height;
 
         this.bW[0] = bW.x;
         this.bW[1] = bW.y;
         this.bW[2] = bW.z;
-
 
         this.bH[0] = bH.x;
         this.bH[1] = bH.y;
@@ -108,7 +152,8 @@ public class KernelProcess extends Kernel {
 //        depth = new double[(int)c.getResolution().height*(int)c.getResolution().width];
 
         Arrays.fill(depth, Integer.MAX_VALUE);
-        Arrays.fill(prefix, 0);
+        Arrays.fill(x2D, Integer.MAX_VALUE);
+        Arrays.fill(d, -1);
 
         this.image = image;
         imageData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -123,36 +168,29 @@ public class KernelProcess extends Kernel {
         put(screenPoint);
         put(screenVector);
         put(depth);
+        put(d);
+        put(bounds);
+        put(minX);
+        put(x2D);
+        put(y2D);
 
+        mode = PREPARE;
+        execute(3*count);
 
+        mode = BOUNDS;
+        execute(count);
 
         int sum = 0;
         for(int i = 0; i <= count; i++) {
             prefix[i] = sum;
             if(i < count) {
-                double minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
-                if (project(3*i, x[i * 3], y[i * 3], z[i * 3])) {
-                    minX = min(minX, bufferX2D[i*3]);
-                    maxX = max(maxX, bufferX2D[i*3]);
-                } else continue;
-                if (project(i*3+1, x[i * 3 + 1], y[i * 3 + 1], z[i * 3 + 1])) {
-                    minX = min(minX, bufferX2D[i*3+1]);
-                    maxX = max(maxX, bufferX2D[i*3+1]);
-                } else continue;
-                if (project(i*3+2, x[i * 3 + 2], y[i * 3 + 2], z[i * 3 + 2])) {
-                    minX = min(minX, bufferX2D[i*3+2]);
-                    maxX = max(maxX, bufferX2D[i*3+2]);
-                } else continue;
-
-                minX = max(0, min(res[0], minX));
-                maxX = max(0, min(res[0], maxX));
-                sum += ceil(maxX) - floor(minX);
-                this.minX[i] = (int)floor(minX);
+                sum += bounds[i];
             }
         }
 
+        mode = CALC;
+
         put(prefix);
-        put(minX);
     }
     
     public boolean inRegion(double r1x, double r1y, double r1z, double r2x, double r2y, double r2z, double x, double y, double z){
@@ -326,77 +364,81 @@ public class KernelProcess extends Kernel {
 
     @Override
     public void run() {
-        run(getGlobalId());
+        if(mode == PREPARE)
+            prepare(getGlobalId());
+        else if(mode == CALC)
+            calc(getGlobalId());
+        else if(mode == BOUNDS)
+            bounds(getGlobalId());
     }
 
-    public void run(int gid) {
+    public void prepare(int gid){
+        projectFlag[gid] = project(gid, x[gid], y[gid], z[gid]);
+        x2D[gid] = bufferX2D[gid];
+        y2D[gid] = bufferY2D[gid];
+        d[gid] = getDistance3D(x[gid], y[gid], z[gid], focus[0], focus[1], focus[2]);
+    }
+
+    public void bounds(int gid){
+        double minX2 = min(x2D[3*gid],min(x2D[3*gid+1],x2D[3*gid+2]));
+        double maxX = max(x2D[3*gid],max(x2D[3*gid+1],x2D[3*gid+2]));
+        bounds[gid] = (int)(ceil(maxX) - floor(minX2));
+        minX[gid] = (int)minX2;
+    }
+
+    public void calc(int gid) {
         int poly = getPolyIndex(gid);
+        imageData[(int)((res[1]/2+0.5)*res[0])] = 0x0000ff;
         if(poly < count) {
             int i = gid - prefix[poly] + minX[poly];
-            double a1x = 0, a1y = 0, a1z = 0, a12Dx = 0, a12Dy = 0,
-                    a2x = 0, a2y = 0, a2z = 0, a22Dx = 0, a22Dy = 0,
-                    a3x = 0, a3y = 0, a3z = 0, a32Dx = 0, a32Dy = 0,
-                    a1depth = 0, a2depth = 0, a3depth = 0;
-            if (project(3 * poly, x[poly * 3], y[poly * 3], z[poly * 3])) {
-                a1x = bufferX[3 * poly];
-                a1y = bufferY[3 * poly];
-                a1z = bufferZ[3 * poly];
-                a12Dx = bufferX2D[3 * poly];
-                a12Dy = bufferY2D[3 * poly];
-                a1depth = getDistance3D(a1x, a1y, a1z, focus[0], focus[1], focus[2]);
-            } else return;
-            if (project(poly * 3 + 1, x[poly * 3 + 1], y[poly * 3 + 1], z[poly * 3 + 1])) {
-                a2x = bufferX[poly * 3 + 1];
-                a2y = bufferY[poly * 3 + 1];
-                a2z = bufferZ[poly * 3 + 1];
-                a22Dx = bufferX2D[poly * 3 + 1];
-                a22Dy = bufferY2D[poly * 3 + 1];
-                a2depth = getDistance3D(a2x, a2y, a2z, focus[0], focus[1], focus[2]);
-            } else return;
-            if (project(poly * 3 + 2, x[poly * 3 + 2], y[poly * 3 + 2], z[poly * 3 + 2])) {
-                a3x = bufferX[poly * 3 + 2];
-                a3y = bufferY[poly * 3 + 2];
-                a3z = bufferZ[poly * 3 + 2];
-                a32Dx = bufferX2D[poly * 3 + 2];
-                a32Dy = bufferY2D[poly * 3 + 2];
-                a3depth = getDistance3D(a3x, a3y, a3z, focus[0], focus[1], focus[2]);
-            } else return;
+            double a1x = x[3 * poly], a1y = y[3 * poly], a1z = z[3 * poly],
+                    a2x = x[poly * 3 + 1], a2y = y[poly * 3 + 1], a2z = z[poly * 3 + 1],
+                    a3x = x[poly * 3 + 2], a3y = y[poly * 3 + 2], a3z = z[poly * 3 + 2],
+                    a12Dx = x2D[3 * poly], a12Dy = y2D[3 * poly],
+                    a22Dx = x2D[3 * poly+1], a22Dy = y2D[3 * poly+1],
+                    a32Dx = x2D[3 * poly+2], a32Dy = y2D[3 * poly+2],
+                    a1depth = d[3*poly], a2depth = d[3*poly+1], a3depth = d[3*poly+2];
+            if (a1depth == -1 || a2depth == -1 || a3depth == -1)
+                return;
 
             double maxPointY = 0, maxPointDepth = -1, minPointY = 0, minPointDepth = -1;
             if (i >= min(a22Dx, a12Dx) && i <= max(a22Dx, a12Dx)) {
                 double y = getValue(a12Dx, a12Dy, a22Dx, a22Dy, i),
                         dis = getDistance2D(a12Dx, a12Dy, a22Dx, a22Dy);
-                if (dis != 0 && (maxPointDepth == -1 || y > maxPointY)) {
+                double D = getDepth(a1depth, a2depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
+                if (dis != 0 && !Double.isNaN(D) && (maxPointDepth == -1 || y > maxPointY)) {
                     maxPointY = y;
-                    maxPointDepth = getDepth(a1depth, a2depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
+                    maxPointDepth = D;
                 }
-                if (dis != 0 && (minPointDepth == -1 || y < minPointY)) {
+                if (dis != 0 && !Double.isNaN(D) && (minPointDepth == -1 || y < minPointY)) {
                     minPointY = y;
-                    minPointDepth = getDepth(a1depth, a2depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
+                    minPointDepth = D;
                 }
             }
             if (i >= min(a22Dx, a32Dx) && i <= max(a22Dx, a32Dx)) {
                 double y = getValue(a32Dx, a32Dy, a22Dx, a22Dy, i),
                         dis = getDistance2D(a32Dx, a32Dy, a22Dx, a22Dy);
-                if (dis != 0 && (maxPointDepth == -1 || y > maxPointY)) {
+                double D = getDepth(a3depth, a2depth, dis, getDistance2D(a32Dx, a32Dy, i, y));
+                if (dis != 0 && !Double.isNaN(D) && (maxPointDepth == -1 || y > maxPointY)) {
                     maxPointY = y;
-                    maxPointDepth = getDepth(a3depth, a2depth, dis, getDistance2D(a32Dx, a32Dy, i, y));
+                    maxPointDepth = D;
                 }
-                if (dis != 0 && (minPointDepth == -1 || y < maxPointY)) {
+                if (dis != 0 && !Double.isNaN(D) && (minPointDepth == -1 || y < maxPointY)) {
                     minPointY = y;
-                    minPointDepth = getDepth(a3depth, a2depth, dis, getDistance2D(a32Dx, a32Dy, i, y));
+                    minPointDepth = D;
                 }
             }
             if (i >= min(a32Dx, a12Dx) && i <= max(a32Dx, a12Dx)) {
                 double y = getValue(a12Dx, a12Dy, a32Dx, a32Dy, i),
                         dis = getDistance2D(a12Dx, a12Dy, a32Dx, a32Dy);
-                if (dis != 0 && (maxPointDepth == -1 || y > maxPointY)) {
+                double D = getDepth(a1depth, a3depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
+                if (dis != 0 && !Double.isNaN(D) && (maxPointDepth == -1 || y > maxPointY)) {
                     maxPointY = y;
-                    maxPointDepth = getDepth(a1depth, a3depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
+                    maxPointDepth = D;
                 }
-                if (dis != 0 && (minPointDepth == -1 || y < minPointY)) {
+                if (dis != 0 && !Double.isNaN(D) && (minPointDepth == -1 || y < minPointY)) {
                     minPointY = y;
-                    minPointDepth = getDepth(a1depth, a3depth, dis, getDistance2D(a12Dx, a12Dy, i, y));
+                    minPointDepth = D;
                 }
 
             }
@@ -410,7 +452,29 @@ public class KernelProcess extends Kernel {
                     double d = getDepth(minPointDepth, maxPointDepth, maxPointY - minPointY, j - minPointY);
                     int index = j * (int) res[0] + i;
                     if (i >= 0 && i < res[0] && j >= 0 && j < res[1] && d < depth[index]) {
-                        imageData[index] = colors[poly];
+                        double lx = (2*i/res[0]-1)*bW[0]+(1-2*j/res[1])*bH[0]+screenVector[0];
+                        double ly = (2*i/res[0]-1)*bW[1]+(1-2*j/res[1])*bH[1]+screenVector[1];
+                        double lz = (2*i/res[0]-1)*bW[2]+(1-2*j/res[1])*bH[2]+screenVector[2];
+
+                        int color = colors[poly];
+                        Color c = new Color(color);
+                        double cos1 = abs((lx*polyVectorX[poly]+ly*polyVectorY[poly]+lz*polyVectorZ[poly])
+                                / getDistance3D(0,0,0,lx,ly,lz)
+                                / getDistance3D(0,0,0,polyVectorX[poly],polyVectorY[poly],polyVectorZ[poly]));
+//                        coeff =sqrt(1-coeff*coeff);
+                        int b = c.getBlue();
+                        color/=256;
+                        int g = c.getGreen();
+                        color/=256;
+                        int r = c.getRed();
+                        color/=256;
+                        b = (int)(b*cos1);
+                        r = (int)(r*cos1);
+                        g = (int)(g*cos1);
+                        c = new Color(r,g,b);
+////                        if(coeff < 0.25 && (r < 50 || g < 50 || b < 50))
+////                            System.out.println("hm");
+                        imageData[index] = c.getRGB();
                         depth[index] = d;
                     }
 
