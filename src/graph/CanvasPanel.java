@@ -1,7 +1,9 @@
 package graph;
 
 import com.aparapi.Kernel;
+import com.guryanov_sergeev.Main;
 import geometry.objects3D.Point3D;
+import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
 
 import javax.swing.*;
@@ -65,7 +67,7 @@ public class CanvasPanel extends JFrame implements KeyListener {
     private static final double rotateStep = Math.PI / 180;
     private final double step = 10;
 
-    private final Set<Drawable> drawables = new HashSet<>();
+    private final Set<Polygon3D> drawables = new HashSet<>();
     private final Camera camera;
 
     public KernelProcess kernel;
@@ -81,42 +83,48 @@ public class CanvasPanel extends JFrame implements KeyListener {
     public long frames;
     double fps = 0;
 
+    int i = 0;
     @Override
     public void paint(Graphics g) {
 
-        kernel.setDrawables(getDrawables());
-        kernel.setCamera(camera, image);
+        synchronized (this) {
 
-        BufferStrategy bufferStrategy = getBufferStrategy();
-        if (bufferStrategy == null) {
-            createBufferStrategy(2);
-            bufferStrategy = getBufferStrategy();
-        }
-        Graphics g2 = bufferStrategy.getDrawGraphics();
-        g2.setColor(getBackground());
-        g2.fillRect(0, 0, getWidth(), getHeight());
+            getDrawables().clear();
+            getDrawables().addAll(Main.drawSphere(-100 + 10 * Math.cos(i), 10 * Math.sin(i), 0, 100, 5, Color.RED));
+            kernel.setDrawables(getDrawables());
+            kernel.setCamera(camera, image);
 
-        if (kernel.count != 0 && kernel.prefix[kernel.count] != 0)
-            for (int i = 0; i < kernel.prefix[kernel.count]; i++) {
-                kernel.calc(i);
+            BufferStrategy bufferStrategy = getBufferStrategy();
+            if (bufferStrategy == null) {
+                createBufferStrategy(2);
+                bufferStrategy = getBufferStrategy();
             }
-        image = kernel.get();
+            Graphics g2 = bufferStrategy.getDrawGraphics();
+            g2.setColor(getBackground());
+            g2.fillRect(0, 0, getWidth(), getHeight());
 
-        ((Graphics2D) g2).drawImage(image, null, 0, 0);
-        final long now = System.currentTimeMillis();
+            if (kernel.count != 0 && kernel.prefix[kernel.count] != 0)
+                for (int i = 0; i < kernel.prefix[kernel.count]; i++) {
+                    kernel.calc(i);
+                }
+            image = kernel.get();
 
-        frames++;
-        if ((now - start) > 1000) {
-            fps = (frames * 1000.0) / (now - start);
-            start = now;
-            frames = 0;
+            ((Graphics2D) g2).drawImage(image, null, 0, 0);
+            final long now = System.currentTimeMillis();
+
+            frames++;
+            if ((now - start) > 1000) {
+                fps = (frames * 1000.0) / (now - start);
+                start = now;
+                frames = 0;
+            }
+            g2.drawString(String.format("%5.2f", fps), 20, 100);
+            g2.dispose();
+            bufferStrategy.show();
         }
-        g2.drawString(String.format("%5.2f", fps), 20, 100);
-        g2.dispose();
-        bufferStrategy.show();
     }
 
-    public Set<Drawable> getDrawables() {
+    public Set<Polygon3D> getDrawables() {
         return drawables;
     }
 

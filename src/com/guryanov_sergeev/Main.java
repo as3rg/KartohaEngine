@@ -5,7 +5,6 @@ import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
 import graph.Camera;
 import graph.CanvasPanel;
-import graph.Drawable;
 import graph.Screen;
 import utils.throwables.ImpossiblePolygonException;
 
@@ -57,15 +56,18 @@ public class Main {
         canvas.setResizable(false);
         canvas.setUndecorated(true);
         canvas.setVisible(true);
+
         new Thread(()->{
+            int i = 0;
             while (true) {
                 canvas.repaint();
+                i++;
             }
         }).start();
     }
 
-    public static Collection<Drawable> drawSphere(double x, double y, double z, double R, int step, Color c){
-        Set<Drawable> drawableSet = new HashSet<>();
+    public static Collection<Polygon3D> drawSphere(double x, double y, double z, double R, int step, Color c){
+        Set<Polygon3D> drawableSet = new HashSet<>();
         java.util.List<java.util.List<Point3D>> C = new ArrayList<>();
         for (int j = 0; j < 360; j+= step) {
             List<Point3D> B = new ArrayList<>();
@@ -86,8 +88,8 @@ public class Main {
 
 
 
-    public static Collection<Drawable> drawCylinder(double x, double y, double z, double R, double h, int step){
-        Set<Drawable> drawableSet = new HashSet<>();
+    public static Collection<Polygon3D> drawCylinder(double x, double y, double z, double R, double h, int step){
+        Set<Polygon3D> drawableSet = new HashSet<>();
         java.util.List<Point3D> A = new ArrayList<>(),B = new ArrayList<>();
         for (int i = 0; i < 360; i += step) {
             A.add(new Point3D(x+R  * utils.Math.roundNearZero(Math.cos(i * Math.PI / 180)), y+R * utils.Math.roundNearZero(Math.sin(i * Math.PI / 180)), z));

@@ -1,6 +1,7 @@
 package graph;
 
 import com.aparapi.Kernel;
+import geometry.objects2D.Polygon2D;
 import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
 import javafx.util.Pair;
@@ -85,10 +86,9 @@ public class KernelProcess extends Kernel {
         return image;
     }
 
-    public void setDrawables(Set<Drawable> drawables){
+    public void setDrawables(Set<Polygon3D> drawables){
         int i = 0;
-        for(Drawable d : drawables) {
-            Polygon3D p = (Polygon3D) d;
+        for(Polygon3D p : drawables) {
             colors[i] = p.color.getRGB();
 
             Vector3D v = p.getPlane().vector;
@@ -175,32 +175,34 @@ public class KernelProcess extends Kernel {
         put(y2D);
         put(prefix);
 
-        mode = PREPARE;
-        execute(3*count);
+        if(count != 0) {
+            mode = PREPARE;
+            execute(3 * count);
 
-        mode = BOUNDS;
-        execute(count);
+            mode = BOUNDS;
+            execute(count);
 
-        prefixSumSize = count;
-        prefixSumStep = 0;
-        mode = ADD;
-        execute(count+1);
-        prefixSumStep++;
-        while (prefixSumSize > 1) {
-            int prefixSumSize2 = (int)ceil(prefixSumSize/2.0);
-            mode = HALVE;
-            execute(prefixSumSize2);
-
-            mode = COPY;
-            execute(prefixSumSize2);
-
+            prefixSumSize = count;
+            prefixSumStep = 0;
             mode = ADD;
-            execute(count+1);
-
-            prefixSumSize = prefixSumSize2;
+            execute(count + 1);
             prefixSumStep++;
-        }
+            while (prefixSumSize > 1) {
+                int prefixSumSize2 = (int) ceil(prefixSumSize / 2.0);
+                mode = HALVE;
+                execute(prefixSumSize2);
 
+                mode = COPY;
+                execute(prefixSumSize2);
+
+                mode = ADD;
+                execute(count + 1);
+
+                prefixSumSize = prefixSumSize2;
+                prefixSumStep++;
+            }
+
+        }
         mode = CALC;
     }
     
