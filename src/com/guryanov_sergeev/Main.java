@@ -49,8 +49,9 @@ public class Main {
 //        canvas.getDrawables().add(new Polygon3D(B, C, C2, Color.ORANGE));
 
 
-        canvas.getDrawables().addAll(drawSphere(100,0, 0, 100, 5, Color.BLUE));
-        canvas.getDrawables().addAll(drawSphere(200,0, 0, 100, 5, Color.RED));
+        canvas.getDrawables().addAll(drawSphere(100,0, 0, 100, 1, Color.BLUE));
+        canvas.getDrawables().addAll(drawSphere(200,0, 0, 100, 1, Color.RED));
+        System.out.println(canvas.getDrawables().size());
         canvas.prepare();
         canvas.setSize(1920, 1080);
         canvas.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
