@@ -76,21 +76,16 @@ public class CanvasPanel extends JFrame implements KeyListener {
 
     public void prepare() {
         kernel = new KernelProcess(camera, image);
-        kernel.setExecutionMode(Kernel.EXECUTION_MODE.GPU);
+        kernel.setExecutionMode(Kernel.EXECUTION_MODE.CPU);
     }
 
     long start;
     public long frames;
     double fps = 0;
-
-    int i = 0;
     @Override
     public void paint(Graphics g) {
 
         synchronized (this) {
-
-            getDrawables().clear();
-            getDrawables().addAll(Main.drawSphere(-100 + 10 * Math.cos(i), 10 * Math.sin(i), 0, 100, 5, Color.RED));
             kernel.setDrawables(getDrawables());
             kernel.setCamera(camera, image);
 

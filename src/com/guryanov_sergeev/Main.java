@@ -23,9 +23,9 @@ public class Main {
         CanvasPanel canvas = new CanvasPanel(camera);
 
         //Куб
-//        Point3D A = new Point3D(-50, -50, -100),
-//                B = new Point3D(-50, -50, -200),
-//                C = new Point3D(-50, 50, -200),
+        Point3D A = new Point3D(-50, -50, -100),
+                B = new Point3D(-50, -50, -200),
+                C = new Point3D(-50, 50, -200);
 //                D = new Point3D(-50, 50, -100),
 //                A2 = new Point3D(50, -50, -100),
 //                B2 = new Point3D(50, -50, -200),
@@ -49,6 +49,8 @@ public class Main {
 //        canvas.getDrawables().add(new Polygon3D(B, C, C2, Color.ORANGE));
 
 
+        canvas.getDrawables().addAll(drawSphere(100,0, 0, 100, 5, Color.BLUE));
+        canvas.getDrawables().addAll(drawSphere(200,0, 0, 100, 5, Color.RED));
         canvas.prepare();
         canvas.setSize(1920, 1080);
         canvas.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
