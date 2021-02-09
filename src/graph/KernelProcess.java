@@ -21,16 +21,17 @@ public class KernelProcess extends Kernel {
     int[] prefix, minX;
     double[] depth;
     int[] colors;
-    int count, prefixSumSize, prefixSumStep;
+    int count = 0, prefixSumSize, prefixSumStep;
     boolean[] projectFlag;
     BufferedImage image;
     private int mode;
 
     private static final int CALC = 0, PREPARE = 1, BOUNDS = 2, HALVE = 3, ADD = 4, COPY = 5, CHANGECOORDS = 6;
 
-    public static int maxCount = 1156680;
-    KernelProcess(Camera c, BufferedImage image){
+    public static final int maxCount = 1156680;
+    KernelProcess(Camera c, BufferedImage image, EXECUTION_MODE em){
         this.count = 0;
+        setExecutionMode(em);
         x = new double[maxCount*3];
         y = new double[maxCount*3];
         z = new double[maxCount*3];
@@ -64,8 +65,8 @@ public class KernelProcess extends Kernel {
         this.screenVector = new double[3];
         depth = new double[(int)c.getResolution().height*(int)c.getResolution().width];
 
-        setCamera(c, image);
         setExplicit(true);
+        setCamera(c, image);
 
     }
 
@@ -154,6 +155,7 @@ public class KernelProcess extends Kernel {
         put(y2D);
         put(prefix);
 
+
         double det = this.bW[0]*this.bH[1]*screenVector[2]
                 + this.bW[1]*this.bH[2]*screenVector[0]
                 + this.bW[2]*this.bH[0]*screenVector[1]
@@ -202,16 +204,23 @@ public class KernelProcess extends Kernel {
                 prefixSumSize = prefixSumSize2;
                 prefixSumStep++;
             }
-
         }
+    }
+
+    public BufferedImage draw(){
         mode = CALC;
+        get(prefix);
+        if(count != 0 && prefix[count] != 0) {
+            execute(prefix[count]);
+        }
+        return get();
     }
 
     public double getValue(double x1, double y1, double x2, double y2, double x3){
         return (y2-y1)*(x3-x1)/(x2-x1)+y1;
     }
 
-    public static double roundNearZero(double d){
+    public double roundNearZero(double d){
         if(d < 0.0000001 && d > -0.0000001){
             return 0;
         }
@@ -231,7 +240,7 @@ public class KernelProcess extends Kernel {
                                    double k1x, double k1y, double k1z,
                                    double x2, double y2, double z2,
                                    double k2x, double k2y, double k2z){
-        double t2;
+        double t2 = 0;
         if(k1y*k2x-k1x*k2y != 0){
             t2 = (k1x*(y2-y1)-k1y*(x2-x1))/(k1y*k2x-k1x*k2y);
         }else if(k1z*k2x-k1x*k2z != 0){
@@ -285,10 +294,10 @@ public class KernelProcess extends Kernel {
 
     @Override
     public void run() {
-        if(mode == PREPARE)
+        if(mode == CHANGECOORDS)
+            changeCoord(getGlobalId());
+        else if(mode == PREPARE)
             prepare(getGlobalId());
-        else if(mode == CALC)
-            calc(getGlobalId());
         else if(mode == BOUNDS)
             bounds(getGlobalId());
         else if(mode == ADD)
@@ -297,8 +306,8 @@ public class KernelProcess extends Kernel {
             halve(getGlobalId());
         else if(mode == COPY)
             copy(getGlobalId());
-        else if(mode == CHANGECOORDS)
-            changeCoord(getGlobalId());
+        else if(mode == CALC)
+            calc(getGlobalId());
     }
 
     public void copy(int gid){
@@ -306,9 +315,10 @@ public class KernelProcess extends Kernel {
     }
 
     public void halve(int gid) {
-        bounds2[gid] = bounds[2 * gid];
         if (prefixSumSize > 2 * gid + 1) {
-            bounds2[gid] += bounds[2 * gid + 1];
+            bounds2[gid] = bounds[2 * gid] + bounds[2 * gid + 1];
+        } else {
+            bounds2[gid] = bounds[2 * gid];
         }
     }
 
@@ -351,7 +361,7 @@ public class KernelProcess extends Kernel {
                     a2x = x[3*poly+1], a2y = y[3*poly+1], a2z = z[3*poly+1],
                     a3x = x[3*poly+2], a3y = y[3*poly+2], a3z = z[3*poly+2];
 
-            double maxPointY = Double.MIN_VALUE, minPointY = Double.MAX_VALUE, maxPointZ = -1, minPointZ = -1, maxPointX = -1, minPointX = -1;
+            double maxPointY = 0, minPointY = 0, maxPointZ = -1, minPointZ = -1, maxPointX = -1, minPointX = -1;
             if (i >= min(a22Dx, a12Dx) && i <= max(a22Dx, a12Dx)) {
                 double y = getValue(a12Dx, a12Dy, a22Dx, a22Dy, i);
                 boolean flag = getIntersection(gid, 0,0,0, i, y, 1, a1x, a1y, a1z,a2x-a1x, a2y-a1y, a2z-a1z);

@@ -1,5 +1,6 @@
 package com.guryanov_sergeev;
 
+import com.aparapi.Kernel;
 import geometry.objects3D.Point3D;
 import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
@@ -20,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
         Camera.Resolution resolution = new Camera.Resolution(1920, 1080);
         Camera camera = new Camera(new Screen(new Vector3D(FocusLength,0,0), new Point3D(-Distance,0,0)), resolution, 0);
-        CanvasPanel canvas = new CanvasPanel(camera);
+        CanvasPanel canvas = new CanvasPanel(camera, Kernel.EXECUTION_MODE.JTP);
 
         //Куб
         Point3D A = new Point3D(-50, -50, -100),
@@ -49,8 +50,8 @@ public class Main {
 //        canvas.getDrawables().add(new Polygon3D(B, C, C2, Color.ORANGE));
 
 
-        canvas.getDrawables().addAll(drawSphere(100,0, 0, 100, 1, Color.BLUE));
-        canvas.getDrawables().addAll(drawSphere(200,0, 0, 100, 1, Color.RED));
+        canvas.getDrawables().addAll(drawSphere(100,0, 0, 100, 15, Color.BLUE));
+        canvas.getDrawables().addAll(drawSphere(200,0, 0, 100, 15, Color.RED));
         System.out.println(canvas.getDrawables().size());
         canvas.prepare();
         canvas.setSize(1920, 1080);

@@ -18,7 +18,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class CanvasPanel extends JFrame implements KeyListener {
-    public CanvasPanel(Camera camera) {
+    public CanvasPanel(Camera camera, Kernel.EXECUTION_MODE em) {
+        this.em = em;
         this.camera = camera;
         image = new BufferedImage((int) camera.getResolution().width, (int) camera.getResolution().height, BufferedImage.TYPE_INT_RGB);
         this.setFocusable(true);
@@ -66,6 +67,7 @@ public class CanvasPanel extends JFrame implements KeyListener {
     }
     private static final double rotateStep = Math.PI / 180;
     private final double step = 10;
+    private Kernel.EXECUTION_MODE em;
 
     private final Set<Polygon3D> drawables = new HashSet<>();
     private final Camera camera;
@@ -75,8 +77,7 @@ public class CanvasPanel extends JFrame implements KeyListener {
     public BufferedImage image;
 
     public void prepare() {
-        kernel = new KernelProcess(camera, image);
-        kernel.setExecutionMode(Kernel.EXECUTION_MODE.CPU);
+        kernel = new KernelProcess(camera, image, em);
     }
 
     long start;
@@ -98,11 +99,11 @@ public class CanvasPanel extends JFrame implements KeyListener {
             g2.setColor(getBackground());
             g2.fillRect(0, 0, getWidth(), getHeight());
 
-            if (kernel.count != 0 && kernel.prefix[kernel.count] != 0)
-                for (int i = 0; i < kernel.prefix[kernel.count]; i++) {
-                    kernel.calc(i);
-                }
-            image = kernel.get();
+//            if (kernel.count != 0 && kernel.prefix[kernel.count] != 0)
+//                for (int i = 0; i < kernel.prefix[kernel.count]; i++) {
+//                    kernel.calc(i);
+//                }
+            image = kernel.draw();
 
             ((Graphics2D) g2).drawImage(image, null, 0, 0);
             final long now = System.currentTimeMillis();
