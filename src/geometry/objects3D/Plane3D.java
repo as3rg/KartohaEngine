@@ -1,7 +1,5 @@
 package geometry.objects3D;
 
-import utils.throwables.ImpossiblePlaneException;
-
 import java.util.Optional;
 
 public class Plane3D {
@@ -9,10 +7,8 @@ public class Plane3D {
     public final Point3D point;
 
     public Plane3D(Vector3D vector, Point3D point) {
-        this.vector = vector;
         this.point = point;
-        if(vector.getLength() == 0)
-            throw new ImpossiblePlaneException();
+        this.vector = vector;
     }
 
     public Plane3D(Point3D a, Point3D b, Point3D c) {
@@ -21,12 +17,14 @@ public class Plane3D {
                 C = (b.x-a.x)*(c.y-a.y)-(c.x-a.x)*(b.y-a.y);
         this.vector = new Vector3D(A,B,C);
         this.point = a;
-        if (vector.getLength() == 0)
-            throw new ImpossiblePlaneException();
     }
 
     public double getD(){
         return utils.Math.roundNearZero(-(vector.x * point.x + vector.y * point.y + vector.z * point.z));
+    }
+
+    public double distance(Point3D p){
+        return Math.abs(vector.scalarProduct(new Vector3D(Point3D.ZERO, p))+getD())/vector.getLength();
     }
 
     public Optional<Point3D> getIntersection(Line3D l){

@@ -11,6 +11,9 @@ public class Vector3D {
         this.x = utils.Math.roundNearZero(x);
         this.y = utils.Math.roundNearZero(y);
         this.z = utils.Math.roundNearZero(z);
+        if(getLength() == 0){
+            throw new ImpossibleVectorException();
+        }
     }
 
     public Vector3D(Point3D p1, Point3D p2) {
@@ -67,6 +70,11 @@ public class Vector3D {
     @Override
     public int hashCode() {
         return Objects.hash(x, y, z);
+    }
+
+    public Vector3D normalize() {
+        double l = getLength();
+        return new Vector3D(x/l,y/l,z/l);
     }
 }
 

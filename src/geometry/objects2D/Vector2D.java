@@ -12,6 +12,9 @@ public class Vector2D {
     public Vector2D(double x, double y) {
         this.x = utils.Math.roundNearZero(x);
         this.y = utils.Math.roundNearZero(y);
+        if(getLength() == 0){
+            throw new ImpossibleVectorException();
+        }
     }
 
     public Vector2D(Point2D p1, Point2D p2) {
@@ -64,6 +67,11 @@ public class Vector2D {
     @Override
     public int hashCode() {
         return Objects.hash(x, y);
+    }
+
+    public Vector2D normalize() {
+        double l = getLength();
+        return new Vector2D(x/l,y/l);
     }
 }
 

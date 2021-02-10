@@ -1,16 +1,9 @@
 package geometry.objects3D;
 
-import geometry.objects2D.Point2D;
-import geometry.objects2D.Polygon2D;
-import geometry.objects2D.Region2D;
-import geometry.objects2D.Vector2D;
-import graph.Camera;
-import graph.Pixel;
 import utils.throwables.ImpossiblePlaneException;
 import utils.throwables.ImpossiblePolygonException;
 
 import java.awt.*;
-import java.util.Optional;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -31,6 +24,10 @@ public class Polygon3D implements Object3D {
         }
         if(a1.equals(a2) || a1.equals(a3) || a2.equals(a3))
             throw new ImpossiblePolygonException();
+    }
+
+    public Polygon3D from(Point3D p){
+        return new Polygon3D(a1.from(p), a2.from(p), a3.from(p), color);
     }
 
     public Plane3D getPlane(){

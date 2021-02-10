@@ -8,6 +8,7 @@ import javafx.util.Pair;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 
 public class KernelProcess extends Kernel {
@@ -77,7 +78,7 @@ public class KernelProcess extends Kernel {
         return image;
     }
 
-    public void setDrawables(Set<Polygon3D> drawables){
+    public void setPolygons(Collection<Polygon3D> drawables){
         int i = 0;
         for(Polygon3D p : drawables) {
             colors[i] = p.color.getRGB();

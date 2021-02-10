@@ -4,6 +4,8 @@ import com.aparapi.Kernel;
 import geometry.objects3D.Point3D;
 import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
+import geometry.polygonal.Polyhedron;
+import geometry.polygonal.Sphere;
 import graph.Camera;
 import graph.CanvasPanel;
 import graph.Screen;
@@ -26,33 +28,37 @@ public class Main {
         //Куб
         Point3D A = new Point3D(-50, -50, -100),
                 B = new Point3D(-50, -50, -200),
-                C = new Point3D(-50, 50, -200);
-//                D = new Point3D(-50, 50, -100),
-//                A2 = new Point3D(50, -50, -100),
-//                B2 = new Point3D(50, -50, -200),
-//                C2 = new Point3D(50, 50, -200),
-//                D2 = new Point3D(50, 50, -100);
-//
-//
-//
-//        canvas.getDrawables().add(new Polygon3D(A, B, C, Color.RED));
-//        canvas.getDrawables().add(new Polygon3D(A, D, C, Color.RED));
-//
-//        canvas.getDrawables().add(new Polygon3D(A, B, B2, Color.GREEN));
-//        canvas.getDrawables().add(new Polygon3D(A, A2, B2, Color.GREEN));
-//
-//        canvas.getDrawables().add(new Polygon3D(D, D2, C2, Color.BLUE));
-//        canvas.getDrawables().add(new Polygon3D(D, C, C2, Color.BLUE));
-//
-//        canvas.getDrawables().add(new Polygon3D(D, A, A2, Color.YELLOW));
-//        canvas.getDrawables().add(new Polygon3D(D, D2, A2, Color.YELLOW));
-//        canvas.getDrawables().add(new Polygon3D(B, B2, C2, Color.ORANGE));
-//        canvas.getDrawables().add(new Polygon3D(B, C, C2, Color.ORANGE));
+                C = new Point3D(-50, 50, -200),
+                D = new Point3D(-50, 50, -100),
+                A2 = new Point3D(50, -50, -100),
+                B2 = new Point3D(50, -50, -200),
+                C2 = new Point3D(50, 50, -200),
+                D2 = new Point3D(50, 50, -100);
 
 
-        canvas.getDrawables().addAll(drawSphere(100,0, 0, 100, 15, Color.BLUE));
-        canvas.getDrawables().addAll(drawSphere(200,0, 0, 100, 15, Color.RED));
-        System.out.println(canvas.getDrawables().size());
+
+        Collection<Polygon3D> polys = new HashSet<>();
+
+        polys.add(new Polygon3D(A, B, C, Color.RED));
+        polys.add(new Polygon3D(A, D, C, Color.RED));
+
+        polys.add(new Polygon3D(A, B, B2, Color.GREEN));
+        polys.add(new Polygon3D(A, A2, B2, Color.GREEN));
+
+        polys.add(new Polygon3D(D, D2, C2, Color.BLUE));
+        polys.add(new Polygon3D(D, C, C2, Color.BLUE));
+
+        polys.add(new Polygon3D(D, A, A2, Color.YELLOW));
+        polys.add(new Polygon3D(D, D2, A2, Color.YELLOW));
+        polys.add(new Polygon3D(B, B2, C2, Color.ORANGE));
+        polys.add(new Polygon3D(B, C, C2, Color.ORANGE));
+
+
+        Sphere s = new Sphere(A, 100, 15, Color.BLUE);
+        canvas.getPolygonals().add(s);
+        canvas.getPolygonals().add(new Polyhedron(Point3D.ZERO,polys));
+//        canvas.getPolygonals().addAll(drawSphere(200,0, 0, 100, 15, Color.RED));
+        System.out.println(canvas.getPolygonals().size());
         canvas.prepare();
         canvas.setSize(1920, 1080);
         canvas.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -62,10 +68,16 @@ public class Main {
         canvas.setVisible(true);
 
         new Thread(()->{
-            int i = 0;
+            double i = 0;
             while (true) {
                 canvas.repaint();
                 i++;
+                s.setCenter(new Point3D(-50+100*Math.cos(i*Math.PI/180), -50+100*Math.sin(i*Math.PI/180), -50));
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }).start();
     }

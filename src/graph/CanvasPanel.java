@@ -1,10 +1,10 @@
 package graph;
 
 import com.aparapi.Kernel;
-import com.guryanov_sergeev.Main;
 import geometry.objects3D.Point3D;
 import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
+import geometry.polygonal.Polygonal;
 
 import javax.swing.*;
 import java.awt.*;
@@ -69,7 +69,7 @@ public class CanvasPanel extends JFrame implements KeyListener {
     private final double step = 10;
     private Kernel.EXECUTION_MODE em;
 
-    private final Set<Polygon3D> drawables = new HashSet<>();
+    private final Set<Polygonal> polygonals = new HashSet<>();
     private final Camera camera;
 
     public KernelProcess kernel;
@@ -87,7 +87,10 @@ public class CanvasPanel extends JFrame implements KeyListener {
     public void paint(Graphics g) {
 
         synchronized (this) {
-            kernel.setDrawables(getDrawables());
+            Set<Polygon3D> polygon3DS = new HashSet<>();
+            for (Polygonal p : polygonals)
+                polygon3DS.addAll(p.getPolygons());
+            kernel.setPolygons(polygon3DS);
             kernel.setCamera(camera, image);
 
             BufferStrategy bufferStrategy = getBufferStrategy();
@@ -120,8 +123,8 @@ public class CanvasPanel extends JFrame implements KeyListener {
         }
     }
 
-    public Set<Polygon3D> getDrawables() {
-        return drawables;
+    public Set<Polygonal> getPolygonals() {
+        return polygonals;
     }
 
     @Override

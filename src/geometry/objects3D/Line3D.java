@@ -1,7 +1,5 @@
 package geometry.objects3D;
 
-import utils.throwables.ImpossibleLineException;
-
 import java.util.Optional;
 
 public class Line3D{
@@ -11,16 +9,16 @@ public class Line3D{
 
     public Line3D(Point3D p, Vector3D vector) {
         this.point = p;
-        this.vector = vector;
-        if(vector.getLength() == 0)
-            throw new ImpossibleLineException();
+        this.vector = vector.normalize();
     }
 
     public Line3D(Point3D p1, Point3D p2){
         this.point = p1;
-        this.vector = new Vector3D(p1, p2);
-        if(vector.getLength() == 0)
-            throw new ImpossibleLineException();
+        this.vector = new Vector3D(p1, p2).normalize();
+    }
+
+    public double distance(Point3D p){
+        return Math.abs(vector.vectorProduct(new Vector3D(p,point)).getLength())/vector.getLength();
     }
 
     public Optional<Point3D> getIntersection(Plane3D p) {
