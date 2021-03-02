@@ -5,11 +5,13 @@ import geometry.objects3D.Matrix3;
 import geometry.objects3D.Point3D;
 import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
+import geometry.polygonal.Polygonal;
 import geometry.polygonal.Polyhedron;
 import geometry.polygonal.Sphere;
 import graph.Camera;
 import graph.CanvasPanel;
 import graph.Screen;
+import utils.Pair;
 import utils.throwables.ImpossiblePolygonException;
 
 import javax.swing.*;
@@ -46,25 +48,46 @@ public class Main {
 
         Collection<Polygon3D> polys = new HashSet<>();
 //
-        polys.add(new Polygon3D(A, B, C, Color.RED));
-        polys.add(new Polygon3D(A, D, C, Color.RED));
-//
-        polys.add(new Polygon3D(A, B, B2, Color.GREEN));
-        polys.add(new Polygon3D(A, A2, B2, Color.GREEN));
-//
-        polys.add(new Polygon3D(D, D2, C2, Color.BLUE));
-        polys.add(new Polygon3D(D, C, C2, Color.BLUE));
+//        polys.add(new Polygon3D(A, B, C, Color.RED));
+//        polys.add(new Polygon3D(A, D, C, Color.GREEN));
+        Pair<Polygon3D, Polygon3D> p = Polygon3D.getPolygons(Color.RED, A, B, C, D);
+        polys.add(p.first);
+        polys.add(p.second);
+////
+//        polys.add(new Polygon3D(A, B, B2, Color.GREEN));
+//        polys.add(new Polygon3D(A, A2, B2, Color.GREEN));
 
-        polys.add(new Polygon3D(D, A, A2, Color.YELLOW));
-        polys.add(new Polygon3D(D, D2, A2, Color.YELLOW));
-        polys.add(new Polygon3D(B, B2, C2, Color.ORANGE));
-        polys.add(new Polygon3D(B, C, C2, Color.ORANGE));
+        p = Polygon3D.getPolygons(Color.GREEN, A, B, A2, B2);
+        polys.add(p.first);
+        polys.add(p.second);
+
+////
+//        polys.add(new Polygon3D(D, D2, C2, Color.BLUE));
+//        polys.add(new Polygon3D(D, C, C2, Color.BLUE));
+
+        p = Polygon3D.getPolygons(Color.BLUE, C, C2, D, D2);
+        polys.add(p.first);
+        polys.add(p.second);
+//
+//        polys.add(new Polygon3D(D, A, A2, Color.YELLOW));
+//        polys.add(new Polygon3D(D, D2, A2, Color.YELLOW));
+
+        p = Polygon3D.getPolygons(Color.YELLOW, A, A2, D, D2);
+        polys.add(p.first);
+        polys.add(p.second);
+
+//        polys.add(new Polygon3D(B, B2, C2, Color.ORANGE));
+//        polys.add(new Polygon3D(B, C, C2, Color.ORANGE));
+
+        p = Polygon3D.getPolygons(Color.ORANGE, B, B2, C, C2);
+        polys.add(p.first);
+        polys.add(p.second);
 
 
         Sphere s = new Sphere(A, 100, 15, Color.BLUE);
-        canvas.getPolygonals().add(s);
 //        canvas.getPolygonals().add(s);
-//        canvas.getPolygonals().add(new Polyhedron(new Point3D(0,100,0),polys));
+//        canvas.getPolygonals().add(s);
+        canvas.getPolygonals().add(new Polyhedron(new Point3D(0,100,0),polys));
 //        canvas.getPolygonals().addAll(drawSphere(200,0, 0, 100, 15, Color.RED));
         System.out.println(canvas.getPolygonals().size());
         canvas.prepare();
@@ -79,6 +102,9 @@ public class Main {
             double i = 0;
             while (true) {
                 canvas.repaint();
+                synchronized (canvas){
+                    s.rotate(new Vector3D(0,0,0.1), Point3D.ZERO);
+                }
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {

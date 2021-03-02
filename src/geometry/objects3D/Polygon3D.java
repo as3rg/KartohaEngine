@@ -1,9 +1,14 @@
 package geometry.objects3D;
 
+import com.sun.istack.internal.Nullable;
+import utils.Pair;
 import utils.throwables.ImpossiblePlaneException;
 import utils.throwables.ImpossiblePolygonException;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -48,5 +53,32 @@ public class Polygon3D implements Object3D {
     @Override
     public String toString() {
         return String.format("[%s, %s, %s]", a1, a2, a3);
+    }
+
+    @Nullable
+    public static Pair<Polygon3D, Polygon3D> getPolygons(Color color, Point3D a, Point3D b, Point3D c, Point3D d) {
+        Set<Point3D> point3DS = new HashSet<>();
+        point3DS.add(a);
+        point3DS.add(b);
+        point3DS.add(c);
+        point3DS.add(d);
+        for (Point3D p1 : point3DS) {
+            for (Point3D p2 : point3DS) {
+                if (p1 == p2)
+                    continue;
+                ArrayList<Point3D> v = new ArrayList<>(point3DS);
+                v.remove(p1);
+                v.remove(p2);
+                Point3D p3 = v.get(0), p4 = v.get(1);
+
+                Vector3D p13 = new Vector3D(p1,p3),
+                        p14 = new Vector3D(p1,p4),
+                        p12 = new Vector3D(p1,p2);
+                if(p12.vectorProduct(p14).scalarProduct(p12.vectorProduct(p13)) < 0){
+                    return new Pair<>(new Polygon3D(p1,p2,p3, color), new Polygon3D(p1,p2,p4, color));
+                }
+            }
+        }
+        return null;
     }
 }

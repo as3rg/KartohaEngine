@@ -32,6 +32,14 @@ public class Point3D{
         return pv.addToPoint(p);
     }
 
+    public double distance(Line3D l){
+        return l.distance(this);
+    }
+
+    public double distance(Plane3D p){
+        return p.distance(this);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(x, y, z);
