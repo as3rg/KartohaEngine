@@ -1,8 +1,8 @@
 package graph;
 
 import geometry.objects3D.*;
-import javafx.util.Pair;
 import geometry.objects2D.Point2D;
+import utils.Pair;
 import utils.Triplet;
 
 import java.util.Optional;
@@ -59,8 +59,8 @@ public class Camera {
 
     public Vector3D getRotatedVector(double r, double t){
         Pair<Vector3D, Vector3D> basises = getBasises(1, 1);
-        Vector3D bH = basises.getValue(),
-                bW = basises.getKey();
+        Vector3D bH = basises.second,
+                bW = basises.first;
         Vector3D v1 = getRotatedVector(screen.vector, bW, r);
         Vector3D v2 = getRotatedVector(v1, bH, t);
         return v2;
@@ -194,8 +194,8 @@ public class Camera {
     public Triplet<Vector3D, Vector3D, Vector3D> getMovingBasises(double f, double r, double t){
         Vector3D mR, mF, mT;
         Pair<Vector3D, Vector3D> basises = getBasises(r, t);
-        mR = basises.getKey();
-        mT = basises.getValue();
+        mR = basises.first;
+        mT = basises.second;
 
         double n = screen.vector.getLength();
         mF = screen.vector.multiply(f/n);
@@ -212,8 +212,8 @@ public class Camera {
         Point3D projection = projectionO.get();
         Point3D smm = screen.point;
         Pair<Vector3D, Vector3D> basises = getBasises(res.width/2, res.height/2);
-        Vector3D bW = basises.getKey(),
-                bH = basises.getValue();
+        Vector3D bW = basises.first,
+                bH = basises.second;
         Double roW = null, roH = null;
         if(bH.y != 0 && bH.z != 0 && bW.y != 0 && bW.z != 0) {
             roW = (bH.z * (projection.y - smm.y) - bH.y * (projection.z - smm.z)) / (bH.z * bW.y - bH.y * bW.z);

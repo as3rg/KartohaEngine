@@ -1,6 +1,5 @@
 package geometry.objects2D;
 
-import geometry.objects3D.Point3D;
 import geometry.objects3D.Vector3D;
 import utils.throwables.ImpossibleVectorException;
 
@@ -72,6 +71,11 @@ public class Vector2D {
     public Vector2D normalize() {
         double l = getLength();
         return new Vector2D(x/l,y/l);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(%.2f, %.2f)", x, y);
     }
 }
 

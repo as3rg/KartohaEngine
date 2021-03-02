@@ -5,6 +5,7 @@ import geometry.objects3D.Point3D;
 import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
 import geometry.polygonal.Polygonal;
+import geometry.polygonal.Polyhedron;
 
 import javax.swing.*;
 import java.awt.*;
@@ -55,7 +56,7 @@ public class CanvasPanel extends JFrame implements KeyListener {
                     synchronized (camera) {
                         working = true;
                         Vector3D v = camera.getRotatedVector(Math.PI * (e.getX() - (getWidth() / 2.0 + getX())) / getWidth(),
-                                -Math.PI * (e.getY() - (getHeight() / 2.0 + getY())) / getHeight());
+                                Math.PI * (e.getY() - (getHeight() / 2.0 + getY())) / getHeight());
                         camera.setScreen(new Screen(v, camera.getScreen().focus));
                         r.mouseMove(getX() + getWidth() / 2, getY() + getHeight() / 2);
                         working = false;

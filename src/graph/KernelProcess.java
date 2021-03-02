@@ -3,7 +3,7 @@ package graph;
 import com.aparapi.Kernel;
 import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
-import javafx.util.Pair;
+import utils.Pair;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -110,8 +110,8 @@ public class KernelProcess extends Kernel {
 
 
         Pair<Vector3D, Vector3D> basises = c.getBasises(1, 1);
-        Vector3D bW = basises.getKey(),
-                bH = basises.getValue();
+        Vector3D bW = basises.first,
+                bH = basises.second;
 
         this.res[0] = c.getResolution().width;
         this.res[1] = c.getResolution().height;
@@ -352,7 +352,6 @@ public class KernelProcess extends Kernel {
 
     public void calc(int gid) {
         int poly = getPolyIndex(gid);
-        imageData[(int)((res[1]/2+0.5)*res[0])] = 0x0000ff;
         if(poly < count && projectFlag[3*poly] && projectFlag[3*poly+1] && projectFlag[3*poly+2]) {
             int i = gid - prefix[poly] + minX[poly];
             double a12Dx = x2D[3 * poly], a12Dy = y2D[3 * poly],

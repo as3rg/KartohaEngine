@@ -11,18 +11,12 @@ public class Vector3D {
         this.x = utils.Math.roundNearZero(x);
         this.y = utils.Math.roundNearZero(y);
         this.z = utils.Math.roundNearZero(z);
-        if(getLength() == 0){
-            throw new ImpossibleVectorException();
-        }
     }
 
     public Vector3D(Point3D p1, Point3D p2) {
         this.x = utils.Math.roundNearZero(p2.x-p1.x);
         this.y = utils.Math.roundNearZero(p2.y-p1.y);
         this.z = utils.Math.roundNearZero(p2.z-p1.z);
-        if(getLength() == 0){
-            throw new ImpossibleVectorException();
-        }
     }
 
     public Point3D addToPoint(Point3D a){
@@ -47,6 +41,16 @@ public class Vector3D {
 
     public double scalarProduct(Vector3D v){
         return utils.Math.roundNearZero(x*v.x+y*v.y+z*v.z);
+    }
+
+    public Vector3D rotate(Vector3D r){
+        Vector3D e = r.normalize();
+        double t = r.getLength();
+        // v2 = v*cos(t)+sin(t)*(e×v)+(1-cos(t))(e·v)e - Формула поворота Родрига
+        Vector3D res = this.multiply(Math.cos(t));
+        res = res.add(e.vectorProduct(this).multiply(Math.sin(t)));
+        res = res.add(e.multiply(e.scalarProduct(this)).multiply(1-Math.cos(t)));
+        return res;
     }
 
     public Vector3D vectorProduct(Vector3D v){
@@ -74,7 +78,15 @@ public class Vector3D {
 
     public Vector3D normalize() {
         double l = getLength();
+        if(l == 0){
+            throw new ImpossibleVectorException();
+        }
         return new Vector3D(x/l,y/l,z/l);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(%.2f, %.2f, %.2f)", x, y, z);
     }
 }
 

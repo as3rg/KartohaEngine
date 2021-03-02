@@ -1,5 +1,7 @@
 package geometry.objects3D;
 
+import utils.throwables.ImpossiblePlaneException;
+
 import java.util.Optional;
 
 public class Plane3D {
@@ -9,6 +11,8 @@ public class Plane3D {
     public Plane3D(Vector3D vector, Point3D point) {
         this.point = point;
         this.vector = vector;
+        if(vector.getLength() == 0)
+            throw new ImpossiblePlaneException();
     }
 
     public Plane3D(Point3D a, Point3D b, Point3D c) {
@@ -17,6 +21,8 @@ public class Plane3D {
                 C = (b.x-a.x)*(c.y-a.y)-(c.x-a.x)*(b.y-a.y);
         this.vector = new Vector3D(A,B,C);
         this.point = a;
+        if(vector.getLength() == 0)
+            throw new ImpossiblePlaneException();
     }
 
     public double getD(){
@@ -136,5 +142,13 @@ public class Plane3D {
             return Optional.empty();
         }
         return Optional.of(new Line3D(new Point3D(x0, y0, z0), new Vector3D(kX, kY, kZ)));
+    }
+
+    @Override
+    public String toString() {
+        return "Plane3D{" +
+                "vector=" + vector +
+                ", point=" + point +
+                '}';
     }
 }

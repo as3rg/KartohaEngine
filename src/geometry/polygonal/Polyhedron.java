@@ -3,6 +3,7 @@ package geometry.polygonal;
 
 import geometry.objects3D.Point3D;
 import geometry.objects3D.Polygon3D;
+import geometry.objects3D.Vector3D;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,6 +28,21 @@ public class Polyhedron implements Polygonal {
             polygon3DS.add(p.from(zero));
         }
         return polygon3DS;
+    }
+
+    @Override
+    public void rotate(Vector3D v, Point3D p) {
+        Set<Polygon3D> polygon3DS = new HashSet<>(getPolygons());
+        Set<Polygon3D> polygon3DS2 = new HashSet<>();
+        for(Polygon3D pol : polygon3DS){
+            polygon3DS2.add(pol.rotate(v,p));
+        }
+        setZero(zero.rotate(v,p));
+        polygons.clear();
+        Point3D antizero = new Vector3D(Point3D.ZERO, zero).multiply(-1).addToPoint(Point3D.ZERO);
+        for(Polygon3D pol : polygon3DS2){
+            polygons.add(pol.from(antizero));
+        }
     }
 
     protected Point3D zero;

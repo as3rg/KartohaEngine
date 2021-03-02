@@ -1,6 +1,7 @@
 package com.guryanov_sergeev;
 
 import com.aparapi.Kernel;
+import geometry.objects3D.Matrix3;
 import geometry.objects3D.Point3D;
 import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
@@ -21,6 +22,12 @@ public class Main {
     public static final int FocusLength = 300;
     public static final int Distance = 500;
     public static void main(String[] args) {
+//        Matrix3 m = new Matrix3(new double[][]{{2,4,1}, {0,2,1},{2,1,1}});
+//        System.out.println(m);
+//        System.out.println(m.reversedMatrix());
+//
+//
+
         Camera.Resolution resolution = new Camera.Resolution(1920, 1080);
         Camera camera = new Camera(new Screen(new Vector3D(FocusLength,0,0), new Point3D(-Distance,0,0)), resolution, 0);
         CanvasPanel canvas = new CanvasPanel(camera, Kernel.EXECUTION_MODE.JTP);
@@ -38,13 +45,13 @@ public class Main {
 
 
         Collection<Polygon3D> polys = new HashSet<>();
-
+//
         polys.add(new Polygon3D(A, B, C, Color.RED));
         polys.add(new Polygon3D(A, D, C, Color.RED));
-
+//
         polys.add(new Polygon3D(A, B, B2, Color.GREEN));
         polys.add(new Polygon3D(A, A2, B2, Color.GREEN));
-
+//
         polys.add(new Polygon3D(D, D2, C2, Color.BLUE));
         polys.add(new Polygon3D(D, C, C2, Color.BLUE));
 
@@ -56,7 +63,8 @@ public class Main {
 
         Sphere s = new Sphere(A, 100, 15, Color.BLUE);
         canvas.getPolygonals().add(s);
-        canvas.getPolygonals().add(new Polyhedron(Point3D.ZERO,polys));
+//        canvas.getPolygonals().add(s);
+//        canvas.getPolygonals().add(new Polyhedron(new Point3D(0,100,0),polys));
 //        canvas.getPolygonals().addAll(drawSphere(200,0, 0, 100, 15, Color.RED));
         System.out.println(canvas.getPolygonals().size());
         canvas.prepare();
@@ -71,8 +79,6 @@ public class Main {
             double i = 0;
             while (true) {
                 canvas.repaint();
-                i++;
-                s.setCenter(new Point3D(-50+100*Math.cos(i*Math.PI/180), -50+100*Math.sin(i*Math.PI/180), -50));
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {

@@ -30,8 +30,8 @@ public class Sphere extends Polyhedron {
         for(int j = 0; j <= 180/step -1; j++) {
             List<Point3D> A = C.get(j), B = C.get(j+1);
             for (int i = 0; i <= 360/step; i += 1) {
-                try{ drawableSet.add(new Polygon3D(A.get(i), A.get((i + 1) % (360/step)), B.get((i + 1) % (360/step)), c)); } catch (utils.throwables.ImpossibleVectorException ignored){}
-                try{ drawableSet.add(new Polygon3D(A.get(i), B.get(i), B.get((i + 1) % (360/step)), c)); } catch (utils.throwables.ImpossibleVectorException ignored){}
+                try{ drawableSet.add(new Polygon3D(A.get(i), A.get((i + 1) % (360/step)), B.get((i + 1) % (360/step)), c)); } catch (utils.throwables.ImpossiblePolygonException ignored){}
+                try{ drawableSet.add(new Polygon3D(A.get(i), B.get(i), B.get((i + 1) % (360/step)), c)); } catch (utils.throwables.ImpossiblePolygonException ignored){}
             }
         }
         polygons.clear();

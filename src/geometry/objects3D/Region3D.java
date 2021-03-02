@@ -45,4 +45,9 @@ public class Region3D implements Object3D {
     public int hashCode() {
         return Objects.hash(low, high);
     }
+
+    @Override
+    public String toString() {
+        return String.format("(%s, %s)", low.toString(), high.toString());
+    }
 }

@@ -39,4 +39,12 @@ public class Line3D{
         }
         return Optional.of(l.vector.multiply(t2).addToPoint(l.point));
     }
+
+    @Override
+    public String toString() {
+        return "Line3D{" +
+                "point=" + point +
+                ", vector=" + vector +
+                '}';
+    }
 }

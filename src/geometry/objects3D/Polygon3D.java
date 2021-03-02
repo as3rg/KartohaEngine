@@ -34,10 +34,19 @@ public class Polygon3D implements Object3D {
         return new Plane3D(a1,a2,a3);
     }
 
+    public Polygon3D rotate(Vector3D v, Point3D p){
+        return new Polygon3D(a1.rotate(v,p), a2.rotate(v,p), a3.rotate(v,p), color);
+    }
+
     @Override
     public Region3D getRegion() {
         return new Region3D(
                 new Point3D(min(min(a1.x, a2.x), a3.x), min(min(a1.y, a2.y), a3.y), min(min(a1.z, a2.z), a3.z)),
                 new Point3D(max(max(a1.x, a2.x), a3.x), max(max(a1.y, a2.y), a3.y), max(max(a1.z, a2.z), a3.z)));
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s, %s, %s]", a1, a2, a3);
     }
 }

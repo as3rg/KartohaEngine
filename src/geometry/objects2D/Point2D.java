@@ -8,4 +8,9 @@ public class Point2D {
         this.x = utils.Math.roundNearZero(x);
         this.y = utils.Math.roundNearZero(y);
     }
+
+    @Override
+    public String toString() {
+        return String.format("(%.2f, %.2f)", x, y);
+    }
 }

@@ -26,8 +26,19 @@ public class Point3D{
                 utils.Math.roundNearZero(point3D.z-z) == 0;
     }
 
+    public Point3D rotate(Vector3D v, Point3D p){
+        Vector3D pv = new Vector3D(p, this);
+        pv = pv.rotate(v);
+        return pv.addToPoint(p);
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(x, y, z);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(%.2f, %.2f, %.2f)", x, y, z);
     }
 }
