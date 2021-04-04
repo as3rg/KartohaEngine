@@ -18,16 +18,16 @@ public class Region3D implements Object3D {
         return this;
     }
 
-    public boolean contains(Object3D o){
+    public boolean contains(Object3D o) {
         Point3D oLow = o.getRegion().low, oHigh = o.getRegion().high;
         return contains(oLow) && contains(oHigh);
     }
 
-    public boolean contains(Point3D o){
+    public boolean contains(Point3D o) {
         return low.x <= o.x && low.y <= o.y && low.z <= o.z && high.x >= o.x && high.y >= o.y && high.z >= o.z;
     }
 
-    public boolean crosses(Object3D o){
+    public boolean crosses(Object3D o) {
         Point3D oLow = o.getRegion().low, oHigh = o.getRegion().high;
         return low.x <= oHigh.x && low.y <= oHigh.y && low.z <= oHigh.z && high.x >= oLow.x && high.y >= oLow.y && high.z >= oLow.z;
     }

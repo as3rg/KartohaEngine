@@ -1,3 +1,4 @@
 package utils.throwables;
 
-public class ImpossibleVectorException extends RuntimeException {}
+public class ImpossibleVectorException extends RuntimeException {
+}

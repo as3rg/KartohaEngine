@@ -1,3 +1,4 @@
 package utils.throwables;
 
-public class ImpossibleSegmentException extends RuntimeException {}
+public class ImpossibleSegmentException extends RuntimeException {
+}

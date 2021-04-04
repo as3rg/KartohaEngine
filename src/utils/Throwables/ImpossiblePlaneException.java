@@ -1,3 +1,4 @@
 package utils.throwables;
 
-public class ImpossiblePlaneException extends RuntimeException {}
+public class ImpossiblePlaneException extends RuntimeException {
+}
