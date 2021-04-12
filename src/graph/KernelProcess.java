@@ -13,14 +13,13 @@ public class KernelProcess extends Kernel {
 
     double[] focus, screenVector, screenPoint, bH, bW, res;
     double[] x, y, z, x2D, y2D;
-    double[] bufferX2D, bufferY2D;
     double[] bufferX, bufferY, bufferZ;
     double[][] matrix;
     int[] imageData, bounds, bounds2;
     int[] prefix, minX;
     double[] depth;
     int[] colors;
-    int count = 0, prefixSumSize, prefixSumStep;
+    int count, prefixSumSize, prefixSumStep;
     boolean[] projectFlag;
     BufferedImage image;
     private int mode;
@@ -38,8 +37,6 @@ public class KernelProcess extends Kernel {
         x2D = new double[MAX_COUNT * 3];
         y2D = new double[MAX_COUNT * 3];
         colors = new int[MAX_COUNT];
-        bufferX2D = new double[3 * MAX_COUNT];
-        bufferY2D = new double[3 * MAX_COUNT];
         bufferX = new double[3 * MAX_COUNT];
         bufferY = new double[3 * MAX_COUNT];
         bufferZ = new double[3 * MAX_COUNT];
@@ -50,8 +47,6 @@ public class KernelProcess extends Kernel {
         bounds2 = new int[MAX_COUNT];
         matrix = new double[3][3];
 
-        put(bufferX2D);
-        put(bufferY2D);
         put(bufferX);
         put(bufferY);
         put(bufferZ);
@@ -256,15 +251,6 @@ public class KernelProcess extends Kernel {
         return true;
     }
 
-    public boolean project(int gid, double px, double py, double pz) {
-        if (px != 0 && py != 0 && roundNearZero(pz) > 0) {
-            bufferX2D[gid] = px / pz;
-            bufferY2D[gid] = py / pz;
-            return true;
-        }
-        return false;
-    }
-
     public void changeCoord(int i) {
         double oldX = x[i] - focus[0],
                 oldY = y[i] - focus[1],
@@ -330,9 +316,13 @@ public class KernelProcess extends Kernel {
     }
 
     public void prepare(int gid) {
-        projectFlag[gid] = project(gid, x[gid], y[gid], z[gid]);
-        x2D[gid] = bufferX2D[gid];
-        y2D[gid] = bufferY2D[gid];
+        if (x[gid] != 0 && y[gid] != 0 && roundNearZero(z[gid]) > 0) {
+            x2D[gid] = x[gid] / z[gid];
+            y2D[gid] = y[gid] / z[gid];
+            projectFlag[gid] = true;
+        }else{
+            projectFlag[gid] = false;
+        }
     }
 
     public void bounds(int gid) {

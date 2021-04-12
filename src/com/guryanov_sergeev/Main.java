@@ -34,10 +34,10 @@ public class Main {
         CanvasPanel canvas = new CanvasPanel(camera, Kernel.EXECUTION_MODE.JTP);
 
         //Куб
-        Point3D A = new Point3D(-50, -50, -100),
-                B = new Point3D(-50, -50, -200),
-                C = new Point3D(-50, 50, -200),
-                D = new Point3D(-50, 50, -100),
+        Point3D A = new Point3D(-50, -5000, 30000),
+                B = new Point3D(-50, -5000, 0),
+                C = new Point3D(-50, 5000, 30000),
+                D = new Point3D(-50, 5000, 0),
                 A2 = new Point3D(50, -50, -100),
                 B2 = new Point3D(50, -50, -200),
                 C2 = new Point3D(50, 50, -200),
@@ -55,34 +55,34 @@ public class Main {
 //        polys.add(new Polygon3D(A, B, B2, Color.GREEN));
 //        polys.add(new Polygon3D(A, A2, B2, Color.GREEN));
 
-        p = Polygon3D.getPolygons(Color.GREEN, A, B, A2, B2).get();
-        polys.add(p.first);
-        polys.add(p.second);
-
-////
-//        polys.add(new Polygon3D(D, D2, C2, Color.BLUE));
-//        polys.add(new Polygon3D(D, C, C2, Color.BLUE));
-
-        p = Polygon3D.getPolygons(Color.BLUE, C, C2, D, D2).get();
-        polys.add(p.first);
-        polys.add(p.second);
+//        p = Polygon3D.getPolygons(Color.GREEN, A, B, A2, B2).get();
+//        polys.add(p.first);
+//        polys.add(p.second);
 //
-//        polys.add(new Polygon3D(D, A, A2, Color.YELLOW));
-//        polys.add(new Polygon3D(D, D2, A2, Color.YELLOW));
+//////
+////        polys.add(new Polygon3D(D, D2, C2, Color.BLUE));
+////        polys.add(new Polygon3D(D, C, C2, Color.BLUE));
+//
+//        p = Polygon3D.getPolygons(Color.BLUE, C, C2, D, D2).get();
+//        polys.add(p.first);
+//        polys.add(p.second);
+////
+////        polys.add(new Polygon3D(D, A, A2, Color.YELLOW));
+////        polys.add(new Polygon3D(D, D2, A2, Color.YELLOW));
+//
+//        p = Polygon3D.getPolygons(Color.YELLOW, A, A2, D, D2).get();
+//        polys.add(p.first);
+//        polys.add(p.second);
+//
+////        polys.add(new Polygon3D(B, B2, C2, Color.ORANGE));
+////        polys.add(new Polygon3D(B, C, C2, Color.ORANGE));
+//
+//        p = Polygon3D.getPolygons(Color.ORANGE, B, B2, C, C2).get();
+//        polys.add(p.first);
+//        polys.add(p.second);
 
-        p = Polygon3D.getPolygons(Color.YELLOW, A, A2, D, D2).get();
-        polys.add(p.first);
-        polys.add(p.second);
 
-//        polys.add(new Polygon3D(B, B2, C2, Color.ORANGE));
-//        polys.add(new Polygon3D(B, C, C2, Color.ORANGE));
-
-        p = Polygon3D.getPolygons(Color.ORANGE, B, B2, C, C2).get();
-        polys.add(p.first);
-        polys.add(p.second);
-
-
-        Sphere s = new Sphere(A, 100, 15, Color.BLUE);
+//        Sphere s = new Sphere(A, 100, 15, Color.BLUE);
 //        canvas.getPolygonals().add(s);
 //        canvas.getPolygonals().add(s);
         canvas.getPolygonals().add(new Polyhedron(new Point3D(0, 100, 0), polys));
@@ -99,9 +99,9 @@ public class Main {
             double i = 0;
             while (true) {
                 canvas.repaint();
-                synchronized (canvas) {
-                    s.rotate(new Vector3D(0, 0, 0.1), Point3D.ZERO);
-                }
+//                synchronized (canvas) {
+//                    s.rotate(new Vector3D(0, 0, 0.1), Point3D.ZERO);
+//                }
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
