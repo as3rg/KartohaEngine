@@ -205,6 +205,7 @@ public class KernelProcess extends Kernel {
     public BufferedImage draw() {
         mode = CALC;
         get(prefix);
+        System.out.println(prefix[count]);
         if (count != 0 && prefix[count] != 0) {
             execute(prefix[count]);
         }
@@ -316,13 +317,9 @@ public class KernelProcess extends Kernel {
     }
 
     public void prepare(int gid) {
-        if (x[gid] != 0 && y[gid] != 0 && roundNearZero(z[gid]) > 0) {
-            x2D[gid] = x[gid] / z[gid];
-            y2D[gid] = y[gid] / z[gid];
-            projectFlag[gid] = true;
-        }else{
-            projectFlag[gid] = false;
-        }
+        x2D[gid] = x[gid] / z[gid];
+        y2D[gid] = y[gid] / z[gid];
+        projectFlag[gid] = true;
     }
 
     public void bounds(int gid) {
@@ -407,7 +404,11 @@ public class KernelProcess extends Kernel {
                         depth[index] = d;
                     }
                 }
+            }else{
+                System.out.println("fck");
             }
+        }else{
+            System.out.println("fck2");
         }
     }
 }

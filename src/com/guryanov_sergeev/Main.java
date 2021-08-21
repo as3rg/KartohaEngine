@@ -1,6 +1,7 @@
 package com.guryanov_sergeev;
 
 import com.aparapi.Kernel;
+import com.aparapi.Kernel.EXECUTION_MODE;
 import geometry.objects3D.Point3D;
 import geometry.objects3D.Polygon3D;
 import geometry.objects3D.Vector3D;
@@ -30,27 +31,26 @@ public class Main {
 //
 
         Camera.Resolution resolution = new Camera.Resolution(1920, 1080);
-        Camera camera = new Camera(new Screen(new Vector3D(FocusLength, 0, 0), new Point3D(-Distance, 0, 0)), resolution);
-        CanvasPanel canvas = new CanvasPanel(camera, Kernel.EXECUTION_MODE.JTP);
+        Camera camera = new Camera(new Screen(new Vector3D(FocusLength, 0, 0), new Point3D(-Distance, 500, 2000)), resolution);
+        CanvasPanel canvas = new CanvasPanel(camera, EXECUTION_MODE.JTP);
 
         //Куб
         Point3D A = new Point3D(-50, -5000, 30000),
                 B = new Point3D(-50, -5000, 0),
                 C = new Point3D(-50, 5000, 30000),
-                D = new Point3D(-50, 5000, 0),
-                A2 = new Point3D(50, -50, -100),
-                B2 = new Point3D(50, -50, -200),
-                C2 = new Point3D(50, 50, -200),
-                D2 = new Point3D(50, 50, -100);
+                D = new Point3D(-50, 5000, 0);
 
 
         Collection<Polygon3D> polys = new HashSet<>();
+        polys.add(new Polygon3D(new Point3D(-1000, -1000, 0),
+            new Point3D(2000, -1000, 0),
+            new Point3D(-1000, 2000, 0), Color.red));
 //
 //        polys.add(new Polygon3D(A, B, C, Color.RED));
 //        polys.add(new Polygon3D(A, D, C, Color.GREEN));
-        Pair<Polygon3D, Polygon3D> p = Polygon3D.getPolygons(Color.RED, A, B, C, D).get();
-        polys.add(p.first);
-        polys.add(p.second);
+//        Pair<Polygon3D, Polygon3D> p = Polygon3D.getPolygons(Color.RED, A, B, C, D).get();
+//        polys.add(p.first);
+//        polys.add(p.second);
 ////
 //        polys.add(new Polygon3D(A, B, B2, Color.GREEN));
 //        polys.add(new Polygon3D(A, A2, B2, Color.GREEN));

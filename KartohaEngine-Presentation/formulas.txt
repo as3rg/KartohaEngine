@@ -1,0 +1,29 @@
+\det A = B_{w_{x}}B_{h_{y}}n_{z}+n_{x}B_{w_{y}}B_{h_{z}}+B_{h_{x}}n_{y}B_{w_{z}}-n_{x}B_{h_{y}}B_{w_{z}}-B_{h_{x}}B_{w_{y}}n_{z}-B_{w_{x}}n_{y}B_{h_{z}}
+
+A^{-1}=\frac{1}{\det{A}}\begin{bmatrix}
+B_{h_{y}}n_{z}-n_{y}B_{h_{z}} & n_{x}B_{h_{z}}-B_{h_{x}}n_{z} & B_{h_{x}}n_{y}-n_{x}B_{h_{y}}\\ 
+n_{y}B_{w_{z}}-B_{w_{y}}n_{z} & B_{w_{x}}n_{z}-n_{x}B_{w_{z}} & B_{w_{y}}n_{x}-B_{w_{x}}n_{y} \\ 
+B_{w_{y}}B_{h_{z}}-B_{h_{y}}B_{w_{z}} & B_{h_{x}}B_{w_{z}}-B_{w_{x}}B_{h_{z}} & B_{w_{x}}B_{h_{y}}-B_{h_{x}}B_{w_{y}}
+\end{bmatrix}
+
+\\
+A'C' = d_{AC}\\
+B'C' = d_{BC}\\
+AC''=A_{z}\cdot A'C' = A_{z}\cdot d_{AC}\\
+B''C'' = A_{z}\cdot B'C' = A_{z}\cdot d_{BC}\\
+AB=D_{AB}\\
+AC = D_{AC}\\
+BC = D_{BC}=D_{AB}-D_{AC}\\
+B'O = d_{B}\\
+B''O = A_{z}\cdot d_{B}\\
+BO = D_{B} = B_{z}\cdot d_{B}\\
+
+\\\frac{B''C''}{AC''} \cdot \frac{AC}{BC} \cdot \frac{BO}{OB''}=1\\\\
+\frac{A_{z}\cdot d_{BC}}{A_{z} \cdot d_{AC}}\cdot\frac{D_{AC}}{D_{AB} - D_{AC}}\cdot\frac{B_{z}\cdot d_{B}}{A_{z} \cdot d_B}=1\\\\
+D_{AC} = \frac{D_{AB}\cdot d_{AC} \cdot A_{z}}{(d_{AB}-d_{AC}) \cdot B_{z}+d_{AC}\cdot A_{z}}
+
+\overrightarrow{B_{w}}={\frac{\frac{w}{2}}{\sqrt{n_{y}^{2}+n_{x}^{2}}}}\cdot\overrightarrow{(n_{y},-n_{x},0)}
+
+\overrightarrow{B_{h}}=\frac{h}{2}\cdot \frac{\overrightarrow{n}\times \overrightarrow{B_{w}}}{\left | \overrightarrow{n}\times \overrightarrow{B_{w}} \right |}
+
+\overrightarrow{{V}'}=\overrightarrow{V}\cos {t}+\sin {t}\cdot (\overrightarrow{e}\times \overrightarrow{V})+(1-\cos t)\cdot (\overrightarrow{e}\cdot \overrightarrow{V})\cdot \overrightarrow{e}
